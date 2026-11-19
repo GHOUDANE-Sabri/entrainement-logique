@@ -431,11 +431,7 @@ GEN.fnd = () => {
 /* ================= BANQUES ÉCRITES À LA MAIN ================= */
 const BANK = {
 intro: [
-  ["Un syllogisme est <b>valide</b> quand…", "si les prémisses sont vraies, la conclusion est nécessairement vraie", ["ses trois phrases sont vraies", "la conclusion est vraie", "les prémisses sont fausses"], "La logique juge la validité du raisonnement, pas la vérité des phrases."],
-  ["« Les chiens ont des plumes ; aucune créature à plumes ne mange de spaghetti ; donc les chiens ne mangent pas de spaghetti. » Ce syllogisme est :", "valide (même si les phrases sont fausses)", ["non valide car les phrases sont fausses", "non valide car la conclusion est fausse", "ni valide ni non valide"], "C ⊆ P et P ∩ S = ∅ entraînent C ∩ S = ∅."],
-  ["« Les rats mangent du fromage ; les rats sont des problèmes ; donc les problèmes mangent du fromage. » Ce syllogisme est :", "non valide", ["valide", "valide car les prémisses sont vraies", "valide par contraposée"], "R ⊆ F et R ⊆ P n'imposent pas P ⊆ F : on peut dessiner un diagramme où la conclusion est fausse."],
-  ["« Aucun homme n'est parfait » exprime entre les ensembles H et P :", "H et P sont disjoints", ["H ⊆ P", "H et P ont une intersection non vide", "H n'est pas inclus dans P"], "Aucun A n'est B : A ∩ B = ∅."],
-  ["« Toutes les vaches ne sont pas laitières » exprime :", "V n'est pas inclus dans L", ["V et L sont disjoints", "V ⊆ L", "L ⊆ V"], "Il existe une vache qui n'est pas laitière : V ⊄ L."],
+  ["La logique juge…", "la validité d'un raisonnement : la conclusion est-elle forcée par les hypothèses ?", ["la vérité des hypothèses", "si une phrase est intéressante", "si la conclusion est vraie dans la réalité"], "Le propos de la logique n'est pas de juger la vérité des propositions de départ, mais de vérifier que la conclusion en découle."],
   ["La règle du <b>Modus Ponens</b> dit :", "si A est vrai et A ⇒ B est vrai, alors B est vrai", ["si B est vrai et A ⇒ B est vrai, alors A est vrai", "si A ⇒ B alors B ⇒ A", "si ¬A alors ¬B"], "C'est la règle de déduction (coupure) utilisée dans les démonstrations."],
   ["Le théorème d'incomplétude de Gödel (1931) dit, informellement :", "toute logique assez large pour exprimer l'arithmétique est incomplète", ["toute formule vraie est démontrable", "la logique propositionnelle est incomplète", "on ne peut rien démontrer en arithmétique"], "La logique propositionnelle, elle, est cohérente et complète."],
   ["Une logique est <b>cohérente</b> si…", "on ne peut démontrer que des choses vraies", ["tout énoncé vrai est démontrable", "les preuves sont automatisables", "elle contient l'arithmétique"], "Complétude : tout énoncé vrai est démontrable. Décidabilité : par un système automatisable."],
@@ -523,7 +519,7 @@ GEN.coursFN = () => bankQ("fn");
 GEN.pred = () => bankQ("pred");
 
 const TYPES = {
-  num: "Changements de base", intro: "Cours : intro, syllogismes, numération", wellformed: "Formule bien formée ?", mainconn: "Connecteur principal",
+  num: "Changements de base", intro: "Cours : introduction et numération", wellformed: "Formule bien formée ?", mainconn: "Connecteur principal",
   height: "Hauteur d'une formule", coursSyntaxe: "Cours : syntaxe", evaluate: "Évaluer une formule", truthtable: "Table de vérité",
   coursSem: "Cours : sémantique", classify: "Tautologie / satisfiable", equiv: "Formule équivalente", lawname: "Nommer la loi",
   fnclass: "FNC ou FND ?", fnd: "FND depuis une table", coursFN: "Cours : formes normales", pred: "Logique des prédicats"
@@ -544,18 +540,6 @@ const CHAINS = [
   { s: "¬(X₁ ∧ X₂) ⇒ ¬X₁", L: [["¬¬(X₁ ∧ X₂) ∨ ¬X₁", "Implication"], ["(X₁ ∧ X₂) ∨ ¬X₁", "Double négation"], ["(X₁ ∨ ¬X₁) ∧ (X₂ ∨ ¬X₁)", "Distributivité"], ["X₂ ∨ ¬X₁", "Simplification par une tautologie (≡ 1)"], ["X₁ ⇒ X₂", "Implication"]], w: ["¬X₁", "X₂", "1"] },
 ];
 const firstWord = s => s.split(" ")[0];
-const SYLLO = [
-  ["Tous les hommes sont mortels.", "Socrate est un homme.", "Socrate est mortel.", "inc", "inc", true, "S ⊆ H et H ⊆ M donnent S ⊆ M."],
-  ["Les chiens ont des plumes.", "Aucune créature à plumes ne mange de spaghetti.", "Les chiens ne mangent pas de spaghetti.", "inc", "disj", true, "C ⊆ P et P ∩ S = ∅ donnent C ∩ S = ∅. Valide même si les phrases sont fausses."],
-  ["Les rats mangent du fromage.", "Les rats sont des problèmes.", "Les problèmes mangent du fromage.", "inc", "inc", false, "R ⊆ F et R ⊆ P : on peut dessiner P qui dépasse de F. La conclusion P ⊆ F n'est pas forcée."],
-  ["Aucun poisson ne vole.", "Certains oiseaux volent.", "Certains oiseaux ne sont pas des poissons.", "disj", "inter", true, "Un oiseau qui vole est hors de l'ensemble des poissons : O ⊄ P."],
-  ["Tous les chats sont des félins.", "Certains félins sont noirs.", "Certains chats sont noirs.", "inc", "inter", false, "Les félins noirs peuvent être tous en dehors des chats : on dessine un diagramme où la conclusion est fausse."],
-  ["Tous les profs sont patients.", "Aucune personne patiente n'est stressée.", "Aucun prof n'est stressé.", "inc", "disj", true, "Pr ⊆ Pa et Pa ∩ S = ∅ donnent Pr ∩ S = ∅."],
-  ["Certains étudiants aiment la logique.", "Tous les étudiants sont fatigués.", "Certaines personnes fatiguées aiment la logique.", "inter", "inc", true, "Un étudiant qui aime la logique est aussi fatigué : F ∩ L ≠ ∅."],
-  ["Certains sportifs ne fument pas.", "Tous les sportifs sont en forme.", "Certaines personnes en forme ne fument pas.", "noninc", "inc", true, "Un sportif non-fumeur est en forme : il existe une personne en forme qui ne fume pas."],
-  ["Aucun reptile n'a de poils.", "Tous les serpents sont des reptiles.", "Certains serpents ont des poils.", "disj", "inc", false, "Au contraire : S ⊆ R et R ∩ P = ∅ donnent S ∩ P = ∅. La conclusion est même forcément fausse."],
-];
-const REL = { inc: "Inclusion (A ⊆ B)", disj: "Disjoints (A ∩ B = ∅)", inter: "Intersection non vide", noninc: "Non-inclusion (A ⊄ B)" };
 const PREDEX = [
   { c: "Domaine D = ℕ. Soit F = <span class='f'>∀x ∃y (y > x)</span>.", s: [
     ["F est-elle vraie ?", "Vraie", ["Fausse"], "Pour chaque x, y = x + 1 convient."],
@@ -650,16 +634,6 @@ const EXOS = {
     ];
     return { context: `Mettre sous forme normale : <span class="f big">${esc(show(f))}</span>`, steps };
   } },
-  syllog: { g: "∴", title: "Syllogismes", desc: "Relations entre ensembles et validité (hors programme CC, bonus)", make() {
-    const items = shuffle(SYLLO).slice(0, 3); const steps = [];
-    items.forEach(([p1, p2, cc, r1, r2, valid, why], i) => {
-      const ctx = `<b>Syllogisme ${i + 1}</b><br>${p1}<br>${p2}<br>Donc ${cc.charAt(0).toLowerCase() + cc.slice(1)}`;
-      steps.push(Object.assign(choiceQ(`Quelle relation exprime la 1re prémisse « ${p1} » ?`, REL[r1], Object.values(REL).filter(x => x !== REL[r1]), "Toutes / les … sont : inclusion. Aucun : disjoints. Certains / il existe : intersection non vide. Certains … ne … pas : non-inclusion.", `Syllogisme ${i + 1} · prémisse 1`), { context: ctx }));
-      steps.push(Object.assign(choiceQ(`Et la 2e prémisse « ${p2} » ?`, REL[r2], Object.values(REL).filter(x => x !== REL[r2]), "Toutes / les … sont : inclusion. Aucun : disjoints. Certains : intersection non vide. Certains … ne … pas : non-inclusion.", `Syllogisme ${i + 1} · prémisse 2`), { context: ctx }));
-      steps.push(Object.assign(choiceQ(`Ce syllogisme est-il valide ?`, valid ? "Valide" : "Non valide", [valid ? "Non valide" : "Valide"], why, `Syllogisme ${i + 1} · validité`), { context: ctx }));
-    });
-    return { context: "", steps };
-  } },
   predicats: { g: "∀∃", title: "Prédicats pas à pas", desc: "Évaluer, traduire, nier une formule du premier ordre", make() {
     const ex = pick(PREDEX);
     return { context: ex.c, steps: ex.s.map(([q, g, b, e], i) => choiceQ(q, g, b, e, `Question ${i + 1}`)) };
@@ -671,7 +645,7 @@ const EXOS = {
 
 /* ================= MONDES ================= */
 const WORLDS = [
-  { id: "w0", g: "∴", name: "Introduction", sub: "Syllogismes, logique, Gödel", types: ["intro"], n: 10 },
+  { id: "w0", g: "∴", name: "Introduction", sub: "Logique, démonstration, Gödel", types: ["intro"], n: 10 },
   { id: "w1", g: "1011", name: "Numération", sub: "Bases 2, 10, 16, B et nombres à virgule", types: ["num", "num", "num", "intro"], n: 10 },
   { id: "w2", g: "( )", name: "Syntaxe", sub: "Formules, lecture unique, poids, hauteur", types: ["wellformed", "mainconn", "height", "coursSyntaxe"], n: 10 },
   { id: "w3", g: "0|1", name: "Sémantique", sub: "Évaluation et tables de vérité", types: ["evaluate", "evaluate", "truthtable", "coursSem"], n: 10 },
@@ -826,7 +800,7 @@ function endRun(timeout = false) {
   const note = w.id === "exam" ? `<p class="big">Note : <b>${run.score}/20</b> · ${run.score >= 16 ? "Très bien" : run.score >= 14 ? "Bien" : run.score >= 12 ? "Assez bien" : run.score >= 10 ? "Passable, continue" : "À retravailler"}</p>` : "";
   const wi = WORLDS.indexOf(w);
   const again = w.ex ? `startExo('${w.ex}')` : `startWorld(${wi})`;
-  const ficheIdx = w.ex ? { numeration: 1, formule: 3, simplif: 4, normal: 5, syllog: 0, predicats: 6, redaction: 4 }[w.ex] : Math.min(FICHES.length - 1, Math.max(0, wi));
+  const ficheIdx = w.ex ? { numeration: 1, formule: 3, simplif: 4, normal: 5, predicats: 6, redaction: 4 }[w.ex] : Math.min(FICHES.length - 1, Math.max(0, wi));
   app.innerHTML = `<div class="stack">${header()}<section class="card stack" style="align-items:center;text-align:center">
     <div class="label">${w.name}${timeout ? " · temps écoulé" : ""}</div>
     <div class="result-num">${run.score}<span class="muted" style="font-size:28px"> / ${n}</span></div>
@@ -854,11 +828,7 @@ function stats(confirmReset) {
 const FICHES = [
 ["Introduction", `
 <p>La logique vérifie qu'une <b>conclusion</b> est nécessairement vraie dès que les <b>hypothèses</b> le sont. Elle juge la <b>validité</b> du raisonnement, pas la vérité des phrases.</p>
-<h3>Syllogismes (Aristote)</h3>
-<p>Deux prémisses et une conclusion. Chaque phrase relie deux ensembles :</p>
-<ul class="list"><li><b>Inclusion</b> A ⊆ B : « Toutes les vaches sont herbivores »</li><li><b>Disjoints</b> A ∩ B = ∅ : « Aucun homme n'est parfait »</li>
-<li><b>Intersection non vide</b> : « Certains hommes vivent vieux »</li><li><b>Non-inclusion</b> A ⊄ B : « Toutes les vaches ne sont pas laitières »</li></ul>
-<p>Méthode : diagramme d'Euler. Pour prouver qu'un syllogisme est <b>non valide</b>, il suffit d'<b>un</b> dessin compatible avec les prémisses où la conclusion est fausse.</p>
+<p>Exemple : « Si A alors B. Or A est vraie. Donc B est vraie. » Ce schéma est correct quel que soit le sens de A et B.</p>
 <h3>Une logique, c'est</h3><ul class="list"><li><b>Syntaxe</b> : comment écrire les formules</li><li><b>Sémantique</b> : la notion de vérité</li><li><b>Système de preuves</b> : Modus Ponens (A et A ⇒ B donnent B) et axiomes</li></ul>
 <p><b>Cohérence</b> : on ne démontre que du vrai. <b>Complétude</b> : tout le vrai est démontrable. <b>Gödel (1931)</b> : toute logique assez large pour l'arithmétique est incomplète.</p>
 <p>La logique propositionnelle travaille sur les booléens : elle est cohérente et complète, et ses calculs sont automatisables. La logique des prédicats est plus expressive mais incomplète.</p>`],
