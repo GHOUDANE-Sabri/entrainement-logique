@@ -1,0 +1,959 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Jeu de révision du cours de logique L1 : chapitres, exercices type TD corrigés, fiches de cours et examen blanc.">
+<title>Logique Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Mise en page : une copie quadrillée d'étudiant — encre bleue pour le jeu, stylo rouge pour les corrections */
+:root{
+  --paper:#fbfcff; --grid:#e3e9f7; --card:#ffffff; --ink:#17204a; --muted:#5b6487; --line:#d7def0;
+  --accent:#2546c8; --accent-ink:#ffffff; --chip:#eaf0ff;
+  --ok:#1b7c4c; --ok-bg:#e2f4ea; --ko:#cf3428; --ko-bg:#fde8e5; --gold:#c98a07; --info-bg:#eef2ff;
+  --display:"Bricolage Grotesque","Avenir Next","Segoe UI",sans-serif;
+  --body:"Atkinson Hyperlegible",-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"JetBrains Mono","SF Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#11161e; --grid:#19202b; --card:#19202b; --ink:#e7ecf6; --muted:#9aa4bf; --line:#2b3546;
+    --accent:#86a6ff; --accent-ink:#0f1420; --chip:#232d3d;
+    --ok:#5ad293; --ok-bg:#15301f; --ko:#ff7d70; --ko-bg:#3a1c1a; --gold:#f2c14e; --info-bg:#1d2638; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11161e; --grid:#19202b; --card:#19202b; --ink:#e7ecf6; --muted:#9aa4bf; --line:#2b3546;
+  --accent:#86a6ff; --accent-ink:#0f1420; --chip:#232d3d;
+  --ok:#5ad293; --ok-bg:#15301f; --ko:#ff7d70; --ko-bg:#3a1c1a; --gold:#f2c14e; --info-bg:#1d2638; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;color:var(--ink);font:17px/1.55 var(--body)}
+.wrap{max-width:920px;margin:0 auto;padding-block:22px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,6vw,40px);font-weight:800;letter-spacing:-.02em}
+h2{font-size:24px;font-weight:700}
+h3{font-size:18px;margin:18px 0 6px}
+p{margin:0}
+.stack{display:flex;flex-direction:column;gap:14px}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:9px 15px;background:var(--card);color:var(--ink)}
+button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,.tok:focus-visible,td.cell:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand small{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.xp{min-width:min(260px,100%);display:flex;flex-direction:column;gap:4px;font-size:14px}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);transition:width .4s}
+.muted{color:var(--muted)}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+.label{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;text-align:left;display:grid;grid-template-columns:auto 1fr;column-gap:12px;row-gap:2px;align-items:start}
+.tile .glyph{grid-row:span 3;width:52px;height:52px;border-radius:8px;background:var(--chip);color:var(--accent);display:grid;place-items:center;font-family:var(--mono);font-weight:600;font-size:15px}
+.tile b{font-family:var(--display);font-size:17px;line-height:1.25}
+.tile .sub{font-size:14px;color:var(--muted)}
+.tile .meta{font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:center}
+.stars{color:var(--gold);letter-spacing:1px}
+.section-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;min-width:0}
+.ctx{background:var(--info-bg);border-radius:8px;padding:12px 14px;margin-bottom:14px;overflow-x:auto}
+.opt span{min-width:0;overflow-x:auto}
+.f{font-family:var(--mono);font-size:.95em;white-space:nowrap}
+.fw{font-family:var(--mono);font-size:.95em}
+.big{font-size:1.25em}
+.opts{display:grid;gap:8px;margin-top:14px}
+.opt{text-align:left;background:var(--paper);border:2px solid var(--line);padding:11px 14px;display:flex;gap:10px;align-items:baseline}
+.opt kbd{font-family:var(--mono);font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 5px}
+.opt.sel{border-color:var(--accent)}
+.opt.good{border-color:var(--ok);background:var(--ok-bg)}
+.opt.bad{border-color:var(--ko);background:var(--ko-bg)}
+input[type=text]{font:inherit;font-family:var(--mono);font-size:20px;padding:10px 12px;border-radius:8px;border:2px solid var(--line);background:var(--paper);color:var(--ink);width:min(340px,100%)}
+.fb{margin-top:16px;padding:14px 16px;border-radius:8px;border-left:4px solid transparent}
+.fb.ok{background:var(--ok-bg);border-color:var(--ok)}
+.fb.ko{background:var(--ko-bg);border-color:var(--ko)}
+.fb.info{background:var(--info-bg);border-color:var(--accent)}
+.fb .verdict{font-family:var(--display);font-weight:700;font-size:18px}
+.fb.ko .verdict{color:var(--ko)} .fb.ok .verdict{color:var(--ok)}
+.hud{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-weight:700;font-variant-numeric:tabular-nums}
+.dots{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
+.dots i{width:12px;height:12px;border-radius:50%;background:var(--line)}
+.dots i.ok{background:var(--ok)} .dots i.ko{background:var(--ko)} .dots i.cur{box-shadow:0 0 0 2px var(--accent)}
+.scroll{overflow-x:auto;max-width:100%}
+table.tt{border-collapse:collapse;margin-top:12px;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.tt th,.tt td{border:1px solid var(--line);padding:5px 10px;text-align:center;white-space:nowrap}
+.tt th{background:var(--chip);font-weight:600}
+.tt td.cell{cursor:pointer;min-width:48px;font-weight:700;background:var(--paper)}
+.tt td.good{background:var(--ok-bg)} .tt td.bad{background:var(--ko-bg);color:var(--ko)}
+.toks{margin:22px 0 10px;line-height:2.5}
+.tok{display:inline-block;padding:3px 3px;border-radius:6px;font-family:var(--mono);font-size:22px;cursor:pointer;position:relative}
+.tok:hover{background:var(--chip)}
+.tok.sel{background:var(--accent);color:var(--accent-ink)}
+.tok.good{background:var(--ok-bg);color:var(--ink);box-shadow:0 0 0 2px var(--ok)}
+.tok.done.sel:not(.good){background:var(--ko-bg);color:var(--ink);box-shadow:0 0 0 2px var(--ko)}
+.tok sub{font-size:11px;color:var(--muted);position:absolute;bottom:-13px;left:50%;transform:translateX(-50%)}
+.fiche p,.fiche li{max-width:68ch}
+.fiche .code,.code{font-family:var(--mono);background:var(--chip);padding:1px 5px;border-radius:4px;font-size:.92em}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.combo{color:var(--gold)}
+.list{margin:6px 0;padding-left:22px}
+.list li{margin:3px 0}
+.kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:4px;padding:0 5px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.sol{border-top:1px dashed var(--line);margin-top:10px;padding-top:10px}
+.result-num{font-family:var(--display);font-size:56px;font-weight:800;line-height:1}
+@media (max-width:520px){.tok{font-size:18px}.card{padding:16px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+"use strict";
+/* ================= OUTILS ================= */
+const R = n => Math.floor(Math.random() * n);
+const pick = a => a[R(a.length)];
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = R(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const $ = s => document.querySelector(s);
+const SUB = ["₀","₁","₂","₃","₄","₅","₆","₇","₈","₉"];
+
+/* ================= MOTEUR DE FORMULES =================
+   t: 'v' variable | 'n' non | 'a' et | 'o' ou | 'i' implique */
+const V = n => ({ t: "v", n });
+const N = a => ({ t: "n", a });
+const A = (a, b) => ({ t: "a", a, b });
+const O = (a, b) => ({ t: "o", a, b });
+const I = (a, b) => ({ t: "i", a, b });
+const SYM = { a: "∧", o: "∨", i: "⇒" };
+const neg = f => f.t === "n" ? f.a : N(f);
+function ev(f, e) {
+  switch (f.t) {
+    case "v": return e[f.n];
+    case "n": return !ev(f.a, e);
+    case "a": return ev(f.a, e) && ev(f.b, e);
+    case "o": return ev(f.a, e) || ev(f.b, e);
+    case "i": return !ev(f.a, e) || ev(f.b, e);
+  }
+}
+function varsOf(f, s = new Set()) { if (f.t === "v") s.add(f.n); else { varsOf(f.a, s); if (f.b) varsOf(f.b, s); } return s; }
+const sortedVars = (...fs) => { const s = new Set(); fs.forEach(f => varsOf(f, s)); return [...s].sort((x, y) => x - y); };
+function height(f) { if (f.t === "v") return 0; if (f.t === "n") return height(f.a) + 1; return Math.max(height(f.a), height(f.b)) + 1; }
+function size(f) { return f.t === "v" ? 1 : 1 + size(f.a) + (f.b ? size(f.b) : 0); }
+const hasImp = f => f.t === "i" || (f.t !== "v" && (hasImp(f.a) || (f.b ? hasImp(f.b) : false)));
+const vname = n => "X" + SUB[n];
+function show(f, top = true, flat = false, parentOp = null) {
+  if (f.t === "v") return vname(f.n);
+  if (f.t === "n") return "¬" + show(f.a, false, flat, "n");
+  const s = show(f.a, false, flat, f.t) + " " + SYM[f.t] + " " + show(f.b, false, flat, f.t);
+  if (flat && (f.t === "a" || f.t === "o") && parentOp === f.t) return s;
+  return top ? s : "(" + s + ")";
+}
+const F = (f, flat = false) => `<span class="f">${esc(show(f, true, flat))}</span>`;
+function strictTokens(f) {
+  if (f.t === "v") return [{ v: vname(f.n), k: "v" }];
+  if (f.t === "n") return [{ v: "(", k: "p" }, { v: "¬", k: "c" }, ...strictTokens(f.a), { v: ")", k: "p" }];
+  return [{ v: "(", k: "p" }, ...strictTokens(f.a), { v: SYM[f.t], k: "c" }, ...strictTokens(f.b), { v: ")", k: "p" }];
+}
+const strictStr = f => strictTokens(f).map(t => t.v).join("");
+function mainIndex(f) { if (f.t === "v") return -1; if (f.t === "n") return 1; return 1 + strictTokens(f.a).length; }
+function parenWeights(toks) { let w = 0; return toks.map(t => { if (t.v === "(") { w++; return w; } if (t.v === ")") { w--; return w; } return null; }); }
+function tokenize(s) {
+  const out = []; let i = 0;
+  while (i < s.length) {
+    const c = s[i];
+    if (c === "X") { let j = i + 1; while (j < s.length && SUB.includes(s[j])) j++; out.push({ v: s.slice(i, j), k: j > i + 1 ? "v" : "?" }); i = j; }
+    else if ("()¬∧∨⇒".includes(c)) { out.push({ v: c, k: "()".includes(c) ? "p" : "c" }); i++; }
+    else i++;
+  }
+  return out;
+}
+function parseStrict(T) {
+  function P(i) {
+    if (i >= T.length) return -1;
+    if (T[i].k === "v") return i + 1;
+    if (T[i].v !== "(") return -1;
+    if (T[i + 1] && T[i + 1].v === "¬") { const j = P(i + 2); if (j < 0 || !T[j] || T[j].v !== ")") return -1; return j + 1; }
+    const j = P(i + 1); if (j < 0 || !T[j] || !["∧", "∨", "⇒"].includes(T[j].v)) return -1;
+    const k = P(j + 1); if (k < 0 || !T[k] || T[k].v !== ")") return -1; return k + 1;
+  }
+  return P(0) === T.length;
+}
+function rows(vs) {
+  const k = vs.length, out = [];
+  for (let i = 0; i < (1 << k); i++) { const e = {}; vs.forEach((v, j) => e[v] = !((i >> (k - 1 - j)) & 1)); out.push(e); }
+  return out;
+}
+function equiv(f, g) { const vs = sortedVars(f, g); return rows(vs).every(e => ev(f, e) === ev(g, e)); }
+function kind(f) { const r = rows(sortedVars(f)).map(e => ev(f, e)); if (r.every(x => x)) return "taut"; if (r.some(x => x)) return "sat"; return "unsat"; }
+function subformulas(f, acc = [], seen = new Set()) {
+  if (f.t !== "v") { subformulas(f.a, acc, seen); if (f.b) subformulas(f.b, acc, seen); }
+  const s = show(f); if (!seen.has(s)) { seen.add(s); acc.push(f); } return acc;
+}
+const b01 = x => x ? "1" : "0";
+function gen(d, nv = 3) {
+  if (d <= 0 || Math.random() < 0.22) return V(1 + R(nv));
+  if (Math.random() < 0.2) return N(gen(d - 1, nv));
+  return { t: pick(["a", "o", "i"]), a: gen(d - 1, nv), b: gen(d - 1, nv) };
+}
+function genExact(h, nv = 3) {
+  if (h === 0) return V(1 + R(nv));
+  if (Math.random() < 0.22) { let s = genExact(h - 1, nv); if (s.t === "n") s = genExact(h - 1, nv); return N(s); }
+  const op = pick(["a", "o", "i"]);
+  const deep = genExact(h - 1, nv), other = h - 1 === 0 ? V(1 + R(nv)) : gen(R(h), nv);
+  return Math.random() < 0.5 ? { t: op, a: deep, b: other } : { t: op, a: other, b: deep };
+}
+function genUsing(h, nv) {
+  for (let k = 0; k < 80; k++) { const f = genExact(h, nv); const s = show(f); if (sortedVars(f).length === nv && !/(X.) [∧∨⇒] \1(?![₀-₉])/.test(s)) return f; }
+  return genExact(h, nv);
+}
+function rewritesAt(f) {
+  const out = [];
+  if (f.t === "i") { out.push({ f: O(neg(f.a), f.b), law: "Implication : P ⇒ Q ≡ ¬P ∨ Q" }); out.push({ f: I(neg(f.b), neg(f.a)), law: "Contraposée : P ⇒ Q ≡ ¬Q ⇒ ¬P" }); }
+  if (f.t === "n" && f.a.t === "a") out.push({ f: O(neg(f.a.a), neg(f.a.b)), law: "Loi de Morgan : ¬(P ∧ Q) ≡ ¬P ∨ ¬Q" });
+  if (f.t === "n" && f.a.t === "o") out.push({ f: A(neg(f.a.a), neg(f.a.b)), law: "Loi de Morgan : ¬(P ∨ Q) ≡ ¬P ∧ ¬Q" });
+  if (f.t === "n" && f.a.t === "i") out.push({ f: A(f.a.a, neg(f.a.b)), law: "Négation d'une implication : ¬(P ⇒ Q) ≡ P ∧ ¬Q" });
+  if (f.t === "n" && f.a.t === "n") out.push({ f: f.a.a, law: "Double négation : ¬¬P ≡ P" });
+  if (f.t === "a" || f.t === "o") out.push({ f: { t: f.t, a: f.b, b: f.a }, law: "Commutativité" });
+  if (f.t === "a" && f.b.t === "o") out.push({ f: O(A(f.a, f.b.a), A(f.a, f.b.b)), law: "Distributivité : P ∧ (Q ∨ R) ≡ (P ∧ Q) ∨ (P ∧ R)" });
+  if (f.t === "o" && f.b.t === "a") out.push({ f: A(O(f.a, f.b.a), O(f.a, f.b.b)), law: "Distributivité : P ∨ (Q ∧ R) ≡ (P ∨ Q) ∧ (P ∨ R)" });
+  if (f.t === "o" && f.a.t === "n") out.push({ f: I(f.a.a, f.b), law: "Implication (sens inverse) : ¬P ∨ Q ≡ P ⇒ Q" });
+  return out;
+}
+function positions(f, path = []) { const p = [path]; if (f.t !== "v") { p.push(...positions(f.a, path.concat("a"))); if (f.b) p.push(...positions(f.b, path.concat("b"))); } return p; }
+const getAt = (f, p) => p.reduce((x, k) => x[k], f);
+function setAt(f, p, g) { if (!p.length) return g; const c = { ...f }; c[p[0]] = setAt(f[p[0]], p.slice(1), g); return c; }
+function rewriteRandom(f) {
+  const opts = positions(f).filter(p => rewritesAt(getAt(f, p)).length);
+  if (!opts.length) return null;
+  const p = pick(opts); const r = pick(rewritesAt(getAt(f, p)));
+  return { f: setAt(f, p, r.f), law: r.law };
+}
+function mutate(f) {
+  const p = pick(positions(f)); const g = getAt(f, p); const r = Math.random();
+  let h;
+  if (g.t === "v") h = r < 0.5 ? N(g) : V(g.n % 3 + 1);
+  else if (g.t === "n") h = g.a;
+  else if (r < 0.55) h = { t: pick(["a", "o", "i"].filter(x => x !== g.t)), a: g.a, b: g.b };
+  else if (r < 0.75 && g.t === "i") h = I(g.b, g.a);
+  else h = N(g);
+  return setAt(f, p, h);
+}
+/* Distracteurs non équivalents à ref, affichés en chaînes */
+function distract(correct, ref, n = 3, flat = true) {
+  const out = new Set(), good = show(correct, true, flat); let t = 0;
+  while (out.size < n && t++ < 300) { const m = mutate(Math.random() < 0.7 ? correct : ref); const s = show(m, true, flat); if (s !== good && !equiv(m, ref)) out.add(s); }
+  return [...out];
+}
+/* Formes normales */
+const isLit = f => f.t === "v" || (f.t === "n" && f.a.t === "v");
+const isClause = f => isLit(f) || (f.t === "o" && isClause(f.a) && isClause(f.b));
+const isConj = f => isLit(f) || (f.t === "a" && isConj(f.a) && isConj(f.b));
+const isCNF = f => isClause(f) || (f.t === "a" && isCNF(f.a) && isCNF(f.b));
+const isDNF = f => isConj(f) || (f.t === "o" && isDNF(f.a) && isDNF(f.b));
+const chain = (op, xs) => xs.reduce((acc, x) => acc ? { t: op, a: acc, b: x } : x, null);
+const randLit = () => Math.random() < 0.5 ? V(1 + R(3)) : N(V(1 + R(3)));
+const mintermOf = (e, vs) => chain("a", vs.map(v => e[v] ? V(v) : N(V(v))));
+function elimImp(f) { if (f.t === "v") return f; if (f.t === "n") return N(elimImp(f.a)); if (f.t === "i") return O(N(elimImp(f.a)), elimImp(f.b)); return { t: f.t, a: elimImp(f.a), b: elimImp(f.b) }; }
+function nnf(f) {
+  if (f.t === "v") return f;
+  if (f.t === "n") { const g = f.a; if (g.t === "v") return f; if (g.t === "n") return nnf(g.a); if (g.t === "a") return O(nnf(N(g.a)), nnf(N(g.b))); if (g.t === "o") return A(nnf(N(g.a)), nnf(N(g.b))); }
+  return { t: f.t, a: nnf(f.a), b: nnf(f.b) };
+}
+function distrib(op, other, x, y) { if (x.t === other) return { t: other, a: distrib(op, other, x.a, y), b: distrib(op, other, x.b, y) }; if (y.t === other) return { t: other, a: distrib(op, other, x, y.a), b: distrib(op, other, x, y.b) }; return { t: op, a: x, b: y }; }
+function toCNF(f) { if (isLit(f)) return f; if (f.t === "a") return A(toCNF(f.a), toCNF(f.b)); return distrib("o", "a", toCNF(f.a), toCNF(f.b)); }
+function toDNF(f) { if (isLit(f)) return f; if (f.t === "o") return O(toDNF(f.a), toDNF(f.b)); return distrib("a", "o", toDNF(f.a), toDNF(f.b)); }
+
+/* ================= QUESTIONS ================= */
+function choiceQ(prompt, good, bads, explain, label) {
+  const opts = shuffle([good, ...bads.slice(0, 3)]);
+  return { kind: "choice", prompt, options: opts, answer: opts.indexOf(good), explain, label };
+}
+const digit = d => d.toString(36).toUpperCase();
+function normBase(s) {
+  s = String(s).trim().toUpperCase().replace(/\s|_|\(|\)/g, "").replace(/^0B|^0X/, "").replace(/,/g, ".");
+  if (s.includes(".")) s = s.replace(/0+$/, "").replace(/\.$/, "");
+  s = s.replace(/^0+(?=[0-9A-Z])/, "");
+  return s === "" ? "0" : s;
+}
+function divSteps(n, b) {
+  const L = []; let q = n;
+  while (q > 0) { L.push(`${q} = ${b} × ${Math.floor(q / b)} + <b>${digit(q % b)}</b>`); q = Math.floor(q / b); }
+  return L.join("<br>") + `<br><span class="muted">On lit les restes de bas en haut.</span>`;
+}
+function powSum(str, b) { const ds = str.split(""), n = ds.length; return ds.map((d, i) => { const v = parseInt(d, b); return v ? `${v}×${b}<sup>${n - 1 - i}</sup>` : null; }).filter(Boolean).join(" + "); }
+function fracToBin(x) { let s = "", k = 0; while (x > 0 && k < 12) { x *= 2; if (x >= 1) { s += "1"; x -= 1; } else s += "0"; k++; } return s; }
+const fr = x => String(x).replace(".", ",");
+function inputQ(prompt, ans, explain, numeric = false, label) {
+  return { kind: "input", prompt, label, answerText: ans, explain: `Réponse : <span class="f">${esc(ans)}</span><br>${explain}`,
+    check: u => numeric ? (/^\s*-?\d+([.,]\d+)?\s*$/.test(u) && Math.abs(parseFloat(String(u).replace(",", ".")) - parseFloat(String(ans).replace(",", "."))) < 1e-9) : normBase(u) === normBase(ans) };
+}
+function numQ(t, n) {
+  if (t === "b2d") { n = n || 8 + R(248); const s = n.toString(2); return inputQ(`Convertis en base 10 : <span class="f big">(${s})₂</span>`, String(n), `(${s})₂ = ${powSum(s, 2)} = ${n}<br><span class="muted">On additionne les puissances de 2 dont le bit vaut 1.</span>`, true); }
+  if (t === "d2b") { n = n || 10 + R(500); return inputQ(`Écris <span class="f big">${n}</span> en base 2.`, n.toString(2), divSteps(n, 2)); }
+  if (t === "h2d") { n = n || 16 + R(4000); const s = n.toString(16).toUpperCase(); return inputQ(`Convertis en base 10 : <span class="f big">(${s})₁₆</span>`, String(n), `(${s})₁₆ = ${powSum(s, 16)} = ${n}<br><span class="muted">A=10, B=11, C=12, D=13, E=14, F=15.</span>`, true); }
+  if (t === "d2h") { n = n || 20 + R(3000); return inputQ(`Écris <span class="f big">${n}</span> en base 16.`, n.toString(16).toUpperCase(), divSteps(n, 16)); }
+  if (t === "b2h") { n = n || 64 + R(60000); const s = n.toString(2); const g = s.padStart(Math.ceil(s.length / 4) * 4, "0").match(/.{4}/g); return inputQ(`Convertis en hexadécimal : <span class="f big">(${s})₂</span>`, n.toString(16).toUpperCase(), `On regroupe par 4 bits <b>en partant de la droite</b> : ${g.map(x => `<span class="f">${x}</span>`).join(" ")} → ${g.map(x => `<b>${parseInt(x, 2).toString(16).toUpperCase()}</b>`).join(" ")}`); }
+  if (t === "h2b") { n = n || 256 + R(60000); const s = n.toString(16).toUpperCase(); return inputQ(`Convertis en binaire : <span class="f big">(${s})₁₆</span>`, n.toString(2), `Chaque chiffre hexa donne 4 bits : ${s.split("").map(c => `${c} → <span class="f">${parseInt(c, 16).toString(2).padStart(4, "0")}</span>`).join(", ")}. On enlève les 0 de tête.`); }
+  if (t === "B2d") { const b = 3 + R(6); n = n || b * b + R(b * b * b * 3); const s = n.toString(b); return inputQ(`Convertis en base 10 : <span class="f big">(${s})<sub>${b}</sub></span>`, String(n), `(${s})<sub>${b}</sub> = ${powSum(s, b)} = ${n}`, true); }
+  if (t === "d2B") { const b = 3 + R(6); n = n || 15 + R(300); return inputQ(`Écris <span class="f big">${n}</span> en base ${b}.`, n.toString(b), divSteps(n, b)); }
+  if (t === "fb2d") {
+    const ip = 1 + R(31), fk = 1 + R(15), fs = fracToBin(fk / 16), s = ip.toString(2) + "," + fs, val = ip + fk / 16;
+    const parts = fs.split("").map((d, i) => d === "1" ? `1/${2 ** (i + 1)}` : null).filter(Boolean).join(" + ");
+    return inputQ(`Convertis en base 10 : <span class="f big">(${s})₂</span><br><span class="muted">Virgule ou point acceptés.</span>`, fr(val), `Partie entière : ${ip}. Après la virgule : ${parts} = ${fr(fk / 16)}<br>Les chiffres après la virgule valent 2<sup>-1</sup>, 2<sup>-2</sup>, 2<sup>-3</sup>…`, true);
+  }
+  const ip = 1 + R(31), fk = 1 + R(15), val = ip + fk / 16, ans = ip.toString(2) + "," + fracToBin(fk / 16);
+  let x = fk / 16; const steps = []; while (x > 0) { const y = x * 2; steps.push(`${fr(x)} × 2 = ${fr(y)} → <b>${y >= 1 ? 1 : 0}</b>`); x = y >= 1 ? y - 1 : y; }
+  return inputQ(`Écris <span class="f big">${fr(val)}</span> en base 2.<br><span class="muted">Format : 101,011</span>`, ans, `Partie entière : ${ip} = (${ip.toString(2)})₂<br>Partie fractionnaire, multiplications successives par 2 :<br>${steps.join("<br>")}`);
+}
+
+const GEN = {};
+GEN.num = () => numQ(pick(["b2d", "d2b", "h2d", "d2h", "b2h", "h2b", "B2d", "d2B", "fb2d", "fd2b"]));
+GEN.wellformed = () => {
+  const f = genExact(2 + R(2), 3); const T = strictTokens(f);
+  const ask = s => `Ce mot est-il une <b>formule bien formée</b> (définition stricte du cours) ?<br><br><span class="f big">${esc(s)}</span>`;
+  if (Math.random() < 0.45) return choiceQ(ask(strictStr(f)), "Oui, bien formée", ["Non, mal formée"], `Oui : on peut la construire avec les règles X<sub>i</sub>, (¬P), (P ∧ Q), (P ∨ Q), (P ⇒ Q).`);
+  let bad = null, why = "";
+  for (let k = 0; k < 60 && !bad; k++) {
+    const c = T.map(t => ({ ...t })); const r = R(5);
+    const idx = kd => c.map((t, i) => kd(t) ? i : -1).filter(i => i >= 0);
+    if (r === 0) { c.splice(pick(idx(t => t.k === "p")), 1); why = "il manque une parenthèse : il faut autant de « ( » que de « ) »."; }
+    else if (r === 1) { const cs = idx(t => t.k === "c" && t.v !== "¬"); if (!cs.length) continue; c.splice(pick(cs), 0, { v: pick(["∧", "∨", "⇒"]), k: "c" }); why = "deux connecteurs se suivent : un connecteur binaire doit être entre deux formules."; }
+    else if (r === 2) { c.splice(pick(idx(t => t.k === "v")), 1); why = "il manque une formule autour d'un connecteur."; }
+    else if (r === 3) { c.splice(pick(idx(t => t.k === "v")) + 1, 0, { v: "¬", k: "c" }); why = "le ¬ doit être placé avant la formule qu'il nie, dans (¬P)."; }
+    else { c.splice(pick(idx(t => t.k === "v")) + 1, 0, { v: vname(1 + R(3)), k: "v" }); why = "deux variables sont collées sans connecteur."; }
+    if (!parseStrict(c)) bad = c;
+  }
+  return choiceQ(ask(bad.map(t => t.v).join("")), "Non, mal formée", ["Oui, bien formée"], `Non : ${why}`);
+};
+GEN.mainconn = (f) => {
+  f = f || genExact(2 + R(2), 3); if (f.t === "v") f = genExact(2, 3);
+  const T = strictTokens(f);
+  return { kind: "tokens", prompt: `Clique sur le <b>connecteur principal</b> (la racine de l'arbre) :`, tokens: T, answer: mainIndex(f), weights: parenWeights(T),
+    explain: f.t === "n" ? `La formule est de la forme (¬P) : le connecteur principal est le ¬ juste après la première parenthèse.` :
+      `Méthode des poids : la 1re parenthèse a le poids 1, puis +1 à chaque « ( » et −1 à chaque « ) ». Le connecteur principal est juste après la <b>première parenthèse fermante de poids 1</b> (ou juste après la variable de gauche si P est une variable).` };
+};
+GEN.height = (f) => {
+  f = f || genExact(1 + R(4), 3); const h = height(f);
+  const exp = subformulas(f).filter(g => g.t !== "v").map(g => `h(${esc(show(g))}) = ${height(g)}`).join("<br>");
+  return { kind: "input", prompt: `Quelle est la <b>hauteur</b> de la formule ?<br><br>${F(f)}`, answerText: String(h), check: u => parseInt(u, 10) === h,
+    explain: `Réponse : <b>${h}</b>. h(X<sub>i</sub>) = 0, h(¬P) = h(P)+1, h(P c Q) = max(h(P), h(Q))+1.<br><span class="fw">${exp}</span>` };
+};
+GEN.evaluate = (f) => {
+  f = f || genUsing(2 + R(2), 3); const vs = sortedVars(f); const e = {}; vs.forEach(v => e[v] = Math.random() < 0.5);
+  const val = ev(f, e);
+  const steps = subformulas(f).filter(g => g.t !== "v").map(g => `${esc(show(g))} = <b>${b01(ev(g, e))}</b>`).join("<br>");
+  return choiceQ(`Avec l'affectation <b>${vs.map(v => `${vname(v)} = ${b01(e[v])}`).join(", ")}</b>, que vaut :<br><br>${F(f)}`, val ? "1 (Vrai)" : "0 (Faux)", [val ? "0 (Faux)" : "1 (Vrai)"],
+    `On évalue chaque sous-formule de l'intérieur vers l'extérieur :<br><span class="fw">${steps}</span><br><span class="muted">Rappel : P ⇒ Q est faux seulement quand P = 1 et Q = 0.</span>`);
+};
+GEN.truthtable = (f) => {
+  f = f || genUsing(2 + R(2), Math.random() < 0.5 ? 2 : 3);
+  return { kind: "table", prompt: `Remplis la dernière colonne de la <b>table de vérité</b> (clique sur une case pour alterner 0 / 1).`, f, vs: sortedVars(f) };
+};
+const TAUT_T = [(P, Q) => O(P, N(P)), (P, Q) => I(P, P), (P, Q) => I(A(P, Q), P), (P, Q) => I(P, O(P, Q)), (P, Q) => I(P, I(Q, P)), (P, Q) => O(I(P, Q), I(Q, P)), (P, Q) => I(A(P, N(P)), Q), (P, Q) => I(I(P, Q), I(N(Q), N(P))), (P, Q) => I(A(P, Q), O(P, Q))];
+const UNSAT_T = [(P, Q) => A(P, N(P)), (P, Q) => N(I(P, P)), (P, Q) => A(A(P, Q), N(P)), (P, Q) => N(O(P, N(P))), (P, Q) => A(N(O(P, Q)), P)];
+const KL = { taut: "Tautologie", sat: "Satisfiable mais pas tautologie", unsat: "Non satisfiable (contradiction)" };
+function classifyOf(f) {
+  const k = kind(f), vs = sortedVars(f), rs = rows(vs), vals = rs.map(e => ev(f, e));
+  const ex = k === "taut" ? "Toutes les lignes de la table valent 1." : k === "unsat" ? "Aucune ligne ne vaut 1." : `Certaines lignes valent 1, d'autres 0 (ex. ${vs.map(v => vname(v) + " = " + b01(rs[vals.indexOf(false)][v])).join(", ")} donne 0).`;
+  return choiceQ(`Cette formule est :<br><br>${F(f)}`, KL[k], Object.values(KL).filter(x => x !== KL[k]), `${ex}<br><span class="muted">Tautologie : ∀ν, eval = 1. Satisfiable : ∃ν, eval = 1. P est une tautologie ⇔ ¬P est non satisfiable.</span>`);
+}
+GEN.classify = () => {
+  const small = () => Math.random() < 0.5 ? V(1 + R(3)) : genExact(1, 3); const r = Math.random();
+  return classifyOf(r < 0.35 ? pick(TAUT_T)(small(), small()) : r < 0.6 ? pick(UNSAT_T)(small(), small()) : genUsing(2, 3));
+};
+GEN.equiv = () => {
+  for (let k = 0; k < 60; k++) {
+    const f = genUsing(2, 3); let g = f; const laws = [];
+    for (let s = 0; s < 1 + R(2); s++) { const r = rewriteRandom(g); if (!r) break; g = r.f; laws.push(r.law); }
+    if (!laws.length || show(g) === show(f)) continue;
+    const bads = distract(g, f, 3, false); if (bads.length < 3) continue;
+    return choiceQ(`Laquelle de ces formules est <b>équivalente</b> à :<br><br>${F(f)}`, `<span class="f">${esc(show(g))}</span>`, bads.map(b => `<span class="f">${esc(b)}</span>`),
+      `Lois utilisées :<br>• ${laws.join("<br>• ")}<br><span class="muted">Les autres n'ont pas la même table de vérité.</span>`);
+  }
+  return GEN.classify();
+};
+const LAWS = ["Implication", "Contraposée", "Loi de Morgan", "Double négation", "Commutativité", "Distributivité", "Absorption", "Idempotence", "Associativité"];
+GEN.lawname = () => {
+  const P = () => Math.random() < 0.6 ? V(1 + R(3)) : genExact(1, 3);
+  const p = P(); let q = P(), r = P();
+  while (show(q) === show(p)) q = P();
+  while (show(r) === show(p) || show(r) === show(q)) r = P();
+  const items = [
+    [I(p, q), O(neg(p), q), "Implication"], [I(p, q), I(neg(q), neg(p)), "Contraposée"], [N(A(p, q)), O(neg(p), neg(q)), "Loi de Morgan"], [N(O(p, q)), A(neg(p), neg(q)), "Loi de Morgan"],
+    [N(N(p)), p, "Double négation"], [A(p, q), A(q, p), "Commutativité"], [O(p, q), O(q, p), "Commutativité"], [A(p, O(q, r)), O(A(p, q), A(p, r)), "Distributivité"], [O(p, A(q, r)), A(O(p, q), O(p, r)), "Distributivité"],
+    [A(p, O(p, q)), p, "Absorption"], [O(p, A(p, q)), p, "Absorption"], [O(p, p), p, "Idempotence"], [A(p, p), p, "Idempotence"], [A(p, A(q, r)), A(A(p, q), r), "Associativité"], [O(p, O(q, r)), O(O(p, q), r), "Associativité"]
+  ];
+  const [x, y, law] = pick(items);
+  return choiceQ(`Quelle loi justifie l'équivalence :<br><br><span class="f">${esc(show(x))}</span> &nbsp;≡&nbsp; <span class="f">${esc(show(y))}</span>`, law, shuffle(LAWS.filter(l => l !== law)), `C'est la loi : <b>${law}</b>.`);
+};
+GEN.fnclass = () => {
+  const L = { cnf: "FNC seulement", dnf: "FND seulement", both: "Les deux (FNC et FND)", none: "Ni FNC ni FND" };
+  const want = pick(["cnf", "dnf", "both", "none"]); let f, got;
+  for (let k = 0; k < 100; k++) {
+    if (want === "cnf") f = chain("a", Array.from({ length: 2 + R(2) }, () => chain("o", Array.from({ length: 1 + R(3) }, randLit))));
+    else if (want === "dnf") f = chain("o", Array.from({ length: 2 + R(2) }, () => chain("a", Array.from({ length: 1 + R(3) }, randLit))));
+    else if (want === "both") f = chain(pick(["a", "o"]), Array.from({ length: 1 + R(3) }, randLit));
+    else f = pick([() => I(randLit(), chain("o", [randLit(), randLit()])), () => N(chain(pick(["a", "o"]), [randLit(), randLit()])), () => A(randLit(), O(randLit(), A(randLit(), randLit()))), () => O(N(N(V(1 + R(3)))), randLit())])();
+    const c = isCNF(f), d = isDNF(f); got = c && d ? "both" : c ? "cnf" : d ? "dnf" : "none";
+    if (got === want) break;
+  }
+  const why = { cnf: "C'est une conjonction (∧) de clauses, une clause étant une disjonction (∨) de littéraux.", dnf: "C'est une disjonction (∨) de conjonctions (∧) de littéraux.",
+    both: "Une seule clause (ou une seule conjonction de littéraux) est à la fois une FNC et une FND.", none: "Elle contient un ⇒, une négation devant autre chose qu'une variable (¬¬ compris), ou une imbrication trop profonde." }[got];
+  return choiceQ(`Cette formule est-elle sous forme normale ?<br><br>${F(f, true)}`, L[got], Object.values(L).filter(x => x !== L[got]), `${why}<br><span class="muted">Littéral : X<sub>i</sub> ou ¬X<sub>i</sub>.</span>`);
+};
+function fndQ(fn, vs, tableHtml) {
+  const rs = rows(vs), tr = rs.filter(e => fn(e));
+  const good = chain("o", tr.map(e => mintermOf(e, vs)));
+  const ref = good; const bads = new Set(); let t = 0;
+  while (bads.size < 3 && t++ < 300) {
+    let cand; const r = R(3);
+    if (r === 0) { const ts = tr.slice(); const i = R(ts.length); const v = pick(vs); ts[i] = { ...ts[i], [v]: !ts[i][v] }; cand = chain("o", ts.map(e => mintermOf(e, vs))); }
+    else if (r === 1) { const fs = rs.filter(e => !fn(e)); if (!fs.length) continue; const ts = tr.slice(); ts.splice(R(ts.length), 1, pick(fs)); cand = chain("o", shuffle(ts).map(e => mintermOf(e, vs))); }
+    else cand = mutate(good);
+    if (!equiv(cand, ref)) bads.add(show(cand, true, true));
+  }
+  return choiceQ(`Quelle formule en <b>FND</b> a cette table de vérité ?${tableHtml || ""}`, `<span class="f">${esc(show(good, true, true))}</span>`, [...bads].map(b => `<span class="f">${esc(b)}</span>`),
+    `Pour chaque ligne où la formule vaut 1, on écrit la conjonction des littéraux (X<sub>i</sub> si X<sub>i</sub> = 1, ¬X<sub>i</sub> si X<sub>i</sub> = 0), puis on fait la disjonction (∨) de ces conjonctions.`);
+}
+GEN.fnd = () => {
+  const all = rows([1, 2, 3]); let tr;
+  do { tr = all.map(() => Math.random() < 0.35); } while (tr.filter(x => x).length < 2 || tr.filter(x => x).length > 3);
+  const fn = e => tr[all.findIndex(r => r[1] === e[1] && r[2] === e[2] && r[3] === e[3])];
+  const tbl = `<div class="scroll"><table class="tt"><tr><th>X₁</th><th>X₂</th><th>X₃</th><th>Q</th></tr>${all.map((e, i) => `<tr><td>${b01(e[1])}</td><td>${b01(e[2])}</td><td>${b01(e[3])}</td><td><b>${b01(tr[i])}</b></td></tr>`).join("")}</table></div>`;
+  return fndQ(fn, [1, 2, 3], tbl);
+};
+
+/* ================= BANQUES ÉCRITES À LA MAIN ================= */
+const BANK = {
+intro: [
+  ["Un syllogisme est <b>valide</b> quand…", "si les prémisses sont vraies, la conclusion est nécessairement vraie", ["ses trois phrases sont vraies", "la conclusion est vraie", "les prémisses sont fausses"], "La logique juge la validité du raisonnement, pas la vérité des phrases."],
+  ["« Les chiens ont des plumes ; aucune créature à plumes ne mange de spaghetti ; donc les chiens ne mangent pas de spaghetti. » Ce syllogisme est :", "valide (même si les phrases sont fausses)", ["non valide car les phrases sont fausses", "non valide car la conclusion est fausse", "ni valide ni non valide"], "C ⊆ P et P ∩ S = ∅ entraînent C ∩ S = ∅."],
+  ["« Les rats mangent du fromage ; les rats sont des problèmes ; donc les problèmes mangent du fromage. » Ce syllogisme est :", "non valide", ["valide", "valide car les prémisses sont vraies", "valide par contraposée"], "R ⊆ F et R ⊆ P n'imposent pas P ⊆ F : on peut dessiner un diagramme où la conclusion est fausse."],
+  ["« Aucun homme n'est parfait » exprime entre les ensembles H et P :", "H et P sont disjoints", ["H ⊆ P", "H et P ont une intersection non vide", "H n'est pas inclus dans P"], "Aucun A n'est B : A ∩ B = ∅."],
+  ["« Toutes les vaches ne sont pas laitières » exprime :", "V n'est pas inclus dans L", ["V et L sont disjoints", "V ⊆ L", "L ⊆ V"], "Il existe une vache qui n'est pas laitière : V ⊄ L."],
+  ["La règle du <b>Modus Ponens</b> dit :", "si A est vrai et A ⇒ B est vrai, alors B est vrai", ["si B est vrai et A ⇒ B est vrai, alors A est vrai", "si A ⇒ B alors B ⇒ A", "si ¬A alors ¬B"], "C'est la règle de déduction (coupure) utilisée dans les démonstrations."],
+  ["Le théorème d'incomplétude de Gödel (1931) dit, informellement :", "toute logique assez large pour exprimer l'arithmétique est incomplète", ["toute formule vraie est démontrable", "la logique propositionnelle est incomplète", "on ne peut rien démontrer en arithmétique"], "La logique propositionnelle, elle, est cohérente et complète."],
+  ["Une logique est <b>cohérente</b> si…", "on ne peut démontrer que des choses vraies", ["tout énoncé vrai est démontrable", "les preuves sont automatisables", "elle contient l'arithmétique"], "Complétude : tout énoncé vrai est démontrable. Décidabilité : par un système automatisable."],
+  ["Une logique est <b>complète</b> si…", "tout énoncé vrai est démontrable", ["on ne démontre que des choses vraies", "elle n'a pas de variables", "toute formule est une tautologie"], "Cohérence = on ne démontre que du vrai ; complétude = tout le vrai est démontrable."],
+  ["Pour montrer « si p² est pair alors p est pair », la <b>contraposée</b> consiste à montrer :", "si p est impair alors p² est impair", ["si p est pair alors p² est pair", "si p² est impair alors p est impair", "p² est pair et p impair"], "La contraposée de A ⇒ B est ¬B ⇒ ¬A."],
+  ["La négation de ∀p (A ⇒ B) est :", "∃p (A ∧ ¬B)", ["∀p (¬A ⇒ ¬B)", "∃p (¬A ∨ B)", "∀p (A ∧ ¬B)"], "On raisonne par l'absurde en supposant ∃p, A ∧ ¬B."],
+  ["La <b>syntaxe</b> d'une logique décrit…", "comment on écrit (construit) une formule", ["si une formule est vraie", "comment démontrer une formule", "les tables de vérité"], "La sémantique, elle, donne le sens (vrai / faux)."],
+  ["En Python, <span class='f'>0.1 + 0.2 == 0.3</span> renvoie :", "False", ["True", "une erreur", "0.3"], "0,1 n'a pas d'écriture finie en base 2, l'ordinateur l'arrondit : 0.1+0.2 = 0.30000000000000004."],
+  ["Le nombre 1/3 a une écriture finie…", "en base 3 : (0,1)₃", ["en base 10", "en base 2", "dans aucune base"], "1/3 = (0,1)₃ = (0,333…)₁₀."],
+  ["En Python, <span class='f'>0xFF</span> vaut :", "255", ["15", "256", "1515"], "0x = hexadécimal, 0b = binaire. FF = 15×16 + 15 = 255."],
+  ["Pour passer du binaire à l'hexadécimal on regroupe les bits par 4…", "en partant de la droite (bits de poids faible)", ["en partant de la gauche", "par 2", "par 8 en partant de la gauche"], "16 = 2⁴ donc un chiffre hexa = 4 bits."],
+  ["0,1 en base 2 s'écrit :", "(0,000110011…)₂, infini et périodique", ["(0,1)₂", "(0,01)₂", "(0,0001)₂"], "Multiplications successives par 2 : 0,2 / 0,4 / 0,8 / 1,6 / 1,2 / 0,4… ça boucle."],
+],
+syntaxe: [
+  ["Le théorème de lecture unique affirme que…", "toute formule a une seule décomposition : Xᵢ, (¬P) ou (P c Q)", ["toute formule est une tautologie", "toute formule a autant de variables que de connecteurs", "une formule peut se lire de plusieurs façons"], "C'est ce qui permet de définir la hauteur, l'arbre et l'évaluation sans ambiguïté."],
+  ["Dans une formule, la <b>première</b> parenthèse a le poids…", "1", ["0", "−1", "le nombre total de parenthèses"], "Ensuite +1 pour « ( », −1 pour « ) ». La dernière parenthèse est la seule de poids 0."],
+  ["La dernière parenthèse d'une formule (non réduite à Xᵢ) a le poids :", "0", ["1", "la hauteur", "le nombre de variables"], "Lemme 4 : c'est la seule parenthèse de poids 0."],
+  ["Le nombre de parenthèses d'une formule est toujours :", "pair", ["impair", "égal au nombre de variables", "égal à la hauteur"], "Autant d'ouvrantes que de fermantes (lemme 2)."],
+  ["Le nombre de parenthèses <b>imbriquées</b> d'une formule est égal à :", "sa hauteur", ["son nombre de variables", "son nombre de connecteurs", "2"], "Proposition 2 du poly."],
+  ["F est « le plus petit ensemble » vérifiant les règles de construction. Pourquoi « le plus petit » ?", "pour que toute formule soit obtenue uniquement par les règles", ["pour avoir moins de variables", "pour que F soit fini", "pour exclure ⇒"], "Sinon A* (tous les mots, même absurdes) vérifierait aussi les règles."],
+  ["Dans la grammaire du cours, quelle règle n'existe <b>pas</b> ?", "A → A ∧ A (sans parenthèses)", ["A → (¬A)", "A → (A ⇒ A)", "A → Xᵢ"], "Chaque connecteur binaire vient avec sa paire de parenthèses : A → (A ∧ A)."],
+  ["Dans un arbre de formule, les <b>feuilles</b> sont :", "les variables", ["les connecteurs", "les parenthèses", "les sous-formules de hauteur 1"], "Les nœuds internes sont les connecteurs ; ¬ a un seul fils."],
+  ["Le principe d'induction sur les formules demande de montrer la propriété…", "pour les Xᵢ, puis pour (¬P), (P∧Q), (P∨Q), (P⇒Q) si elle est vraie pour P et Q", ["seulement pour X₁", "pour toutes les tables de vérité", "pour les formules de hauteur 0 et 1"], "C'est l'analogue de la récurrence pour les formules."],
+  ["Une formule qui contient 3 variables différentes a une table de vérité de :", "8 lignes", ["3 lignes", "6 lignes", "9 lignes"], "2ᵖ lignes pour p variables."],
+],
+semantique: [
+  ["Une <b>affectation</b> ν est :", "une application des variables dans {Vrai, Faux}", ["une formule toujours vraie", "une ligne de démonstration", "une valeur dans ℕ"], "En logique des prédicats on parle de valuation (variables → domaine D)."],
+  ["P ⇒ Q est fausse exactement quand :", "P = 1 et Q = 0", ["P = 0 et Q = 1", "P = 0 et Q = 0", "P et Q ont la même valeur"], "Dans tous les autres cas l'implication vaut 1."],
+  ["P est une tautologie si et seulement si :", "¬P est non satisfiable", ["¬P est une tautologie", "P est satisfiable", "P ⇒ ¬P"], "Proposition 3 du poly."],
+  ["P ≡ Q si et seulement si :", "(P ⇒ Q) ∧ (Q ⇒ P) est une tautologie", ["P ∧ Q est satisfiable", "P ⇒ Q est vraie", "P et Q ont les mêmes variables"], "On écrit aussi P ⇔ Q pour cette formule."],
+  ["Quelle est la différence entre ⇔ et ≡ ?", "⇔ est un connecteur (dans une formule), ≡ est une propriété entre formules", ["aucune", "≡ est un connecteur, ⇔ une propriété", "⇔ ne s'utilise qu'en prédicats"], "P ≡ Q n'est pas une formule ; P ⇔ Q en est une."],
+  ["Si V est une tautologie, alors V ⇒ P est équivalente à :", "P", ["1", "¬P", "0"], "1 ⇒ P ≡ P."],
+  ["Si F est non satisfiable, alors P ⇒ F est équivalente à :", "¬P", ["P", "1", "0"], "P ⇒ 0 ≡ ¬P."],
+  ["Si F est non satisfiable, alors F ⇒ P est :", "une tautologie", ["équivalente à P", "non satisfiable", "équivalente à ¬P"], "0 ⇒ P ≡ 1."],
+  ["(X₁ ∧ ¬X₁) ⇒ X₂ est :", "une tautologie", ["non satisfiable", "équivalente à X₂", "équivalente à ¬X₂"], "X₁ ∧ ¬X₁ ≡ 0 et 0 ⇒ X₂ ≡ 1."],
+  ["(X₁ ⇒ X₂) ⇒ X₁ se simplifie en :", "X₁", ["X₂", "1", "X₁ ⇒ X₂"], "≡ ¬(¬X₁ ∨ X₂) ∨ X₁ ≡ (X₁ ∧ ¬X₂) ∨ X₁ ≡ X₁ (absorption)."],
+  ["(X₁ ⇒ X₂) ∨ X₂ se simplifie en :", "X₁ ⇒ X₂", ["X₂", "1", "X₁"], "≡ (¬X₁ ∨ X₂) ∨ X₂ ≡ ¬X₁ ∨ X₂ (idempotence)."],
+  ["P ∧ (P ∨ Q) est équivalente à :", "P", ["Q", "P ∨ Q", "P ∧ Q"], "Loi d'absorption."],
+  ["Remplacer X₁ par une formule G dans une tautologie donne :", "encore une tautologie", ["une formule non satisfiable", "une formule équivalente à G", "on ne peut pas savoir"], "Proposition 15 : une instance d'une tautologie est une tautologie."],
+],
+fn: [
+  ["Un <b>littéral</b> est :", "une variable ou la négation d'une variable", ["une disjonction de variables", "une formule sans ⇒", "une constante 0 ou 1"], "Ex : X₁, ¬X₄."],
+  ["Une <b>clause</b> est :", "une disjonction (∨) de littéraux", ["une conjonction (∧) de littéraux", "une conjonction de disjonctions", "une variable"], "Ex : (¬X₁ ∨ X₂ ∨ ¬X₄)."],
+  ["Une formule en <b>FNC</b> est :", "une conjonction (∧) de clauses", ["une disjonction de clauses", "une disjonction de conjonctions de littéraux", "une formule sans négation"], "FNC = ∧ de ∨ ; FND = ∨ de ∧."],
+  ["Première étape pour mettre une formule en forme normale :", "supprimer les ⇒ avec P ⇒ Q ≡ ¬P ∨ Q", ["distribuer", "faire la table de vérité", "supprimer les ¬"], "Puis rentrer les ¬ avec Morgan, puis distribuer."],
+  ["Pour construire une FND depuis une table de vérité, on utilise…", "les lignes où la formule vaut 1", ["les lignes où la formule vaut 0", "seulement la première ligne", "les colonnes des variables à 0"], "Une conjonction de littéraux par ligne vraie, puis on fait leur disjonction."],
+  ["La conjonction ¬X₁ ∧ X₂ ∧ X₃ est vraie pour :", "exactement la ligne X₁=0, X₂=1, X₃=1", ["toutes les lignes où X₂=1", "aucune ligne", "trois lignes"], "Une conjonction de tous les littéraux n'a qu'un seul 1 dans sa table."],
+  ["Pourquoi la méthode par distributivité peut-elle être coûteuse ?", "la taille de la formule peut augmenter exponentiellement", ["elle ne marche pas toujours", "elle change la table de vérité", "elle supprime des variables"], "Elle marche toujours, mais peut exploser en taille."],
+  ["La construction des FND montre que…", "toute fonction booléenne {0,1}ⁿ → {0,1} s'écrit avec une formule", ["toute formule est une tautologie", "les FNC n'existent pas", "il y a 2ⁿ formules"], "La logique propositionnelle exprime toutes les fonctions booléennes."],
+  ["¬(X₁ ⇒ (X₂ ∧ ¬X₃)) en FND donne :", "(X₁ ∧ ¬X₂) ∨ (X₁ ∧ X₃)", ["(¬X₁ ∨ X₂) ∧ ¬X₃", "X₁ ∧ X₂ ∧ ¬X₃", "(X₁ ∨ ¬X₂) ∧ (X₁ ∨ X₃)"], "≡ X₁ ∧ ¬(X₂ ∧ ¬X₃) ≡ X₁ ∧ (¬X₂ ∨ X₃) puis on distribue X₁."],
+],
+pred: [
+  ["¬(∀x P) est équivalente à :", "∃x (¬P)", ["∀x (¬P)", "∃x P", "¬∃x (¬P)"], "Négation des quantificateurs : ∀ devient ∃ et on nie l'intérieur."],
+  ["¬(∃x P) est équivalente à :", "∀x (¬P)", ["∃x (¬P)", "∀x P", "¬∀x P"], "∃ devient ∀ et on nie l'intérieur."],
+  ["La négation de ∀x ∃y (x < y) est :", "∃x ∀y (x ≥ y)", ["∀x ∃y (x ≥ y)", "∃x ∃y (x ≥ y)", "∃x ∀y (x > y)"], "On échange chaque quantificateur et on nie x < y en x ≥ y."],
+  ["La négation de ∃x ((x > 0) ∧ (x² = 2)) est :", "∀x ((x ≤ 0) ∨ (x² ≠ 2))", ["∀x ((x ≤ 0) ∧ (x² ≠ 2))", "∃x ((x ≤ 0) ∨ (x² ≠ 2))", "∀x ((x > 0) ⇒ (x² = 2))"], "∃ devient ∀, puis Morgan : ¬(A ∧ B) ≡ ¬A ∨ ¬B."],
+  ["Sur D = ℕ, la formule ∀x (x ≥ 0) est :", "Vraie", ["Fausse"], "Tout entier naturel est ≥ 0."],
+  ["Sur D = ℕ, la formule ∀x (x > 3) est :", "Fausse", ["Vraie"], "Contre-exemple : x = 2."],
+  ["Sur D = ℕ, la formule ∃x (x² = 4) est :", "Vraie", ["Fausse"], "x = 2 convient."],
+  ["Sur D = ℕ, la formule ∃x (x² = 5) est :", "Fausse", ["Vraie"], "5 n'est le carré d'aucun entier."],
+  ["Sur D = ℕ, ∀x ∃y (y > x) est :", "Vraie", ["Fausse"], "Pour chaque x, y = x + 1 convient."],
+  ["Sur D = ℕ, ∃y ∀x (y > x) est :", "Fausse", ["Vraie"], "Aucun entier n'est plus grand que tous les autres (il faudrait y > y). L'ordre des quantificateurs compte."],
+  ["Sur D = ℝ, ∀x ≥ 0 ∃y (x = y·y) est :", "Vraie", ["Fausse"], "y = √x. (Sur ℕ ce serait faux : 2 n'est pas un carré.)"],
+  ["Sur ℤ, ∀x (x² ≥ 0) est :", "Vraie", ["Fausse"], "Tout carré est positif."],
+  ["<span class='f'>carre(1 + n) ∗ 3</span> est :", "un terme", ["une formule atomique", "une formule avec quantificateur", "mal formé"], "Un calcul dont le résultat est un élément de D : c'est un terme."],
+  ["<span class='f'>max(1, n) = m</span> est :", "une formule atomique", ["un terme", "une constante", "mal formé"], "La relation = (arité 2) est appliquée à deux termes."],
+  ["<span class='f'>positif(x)</span>, avec positif une relation d'arité 1, est :", "une formule atomique", ["un terme", "une fonction", "une variable"], "Relation appliquée à un terme → formule atomique (prédicat)."],
+  ["<span class='f'>(∀x (x ≥ y))</span> est :", "une formule d'ordre 1, avec y libre", ["un terme", "une formule atomique", "une formule sans variable libre"], "x est liée par ∀, y n'est quantifiée nulle part : y est libre."],
+  ["Une <b>relation</b> d'arité n associe à n éléments de D :", "Vrai ou Faux", ["un élément de D", "une variable", "un terme"], "Une fonction, elle, renvoie un élément de D."],
+  ["Une <b>fonction</b> d'arité n associe à n éléments de D :", "un élément de D", ["Vrai ou Faux", "une formule", "un quantificateur"], "Ex : + d'arité 2 sur ℕ."],
+  ["Le raccourci ∀x : r(x) P signifie :", "∀x (r(x) ⇒ P)", ["∀x (r(x) ∧ P)", "∃x (r(x) ⇒ P)", "∀x (P ⇒ r(x))"], "Pour tout x qui vérifie r, P est vraie."],
+  ["Le raccourci ∃x : r(x) P signifie :", "∃x (r(x) ∧ P)", ["∃x (r(x) ⇒ P)", "∀x (r(x) ∧ P)", "∃x (P ⇒ r(x))"], "Il existe un x qui vérifie r ET P. Avec ⇒ ce serait presque toujours vrai."],
+  ["¬(∀x ≥ 0 P) est équivalente à :", "∃x ≥ 0 (¬P)", ["∀x ≥ 0 (¬P)", "∃x < 0 (¬P)", "∃x < 0 P"], "La condition ne change pas, seuls le quantificateur et P changent."],
+  ["((n mod 3) = 0) ∧ ((n mod 9) ≠ 0) exprime :", "n est divisible par 3 mais pas par 9", ["n est divisible par 27", "n n'est pas divisible par 3", "n est divisible par 9"], "Formule à variable libre n : propriété de n."],
+  ["(∀x (x ≥ y)) ∨ ¬(∀x (x ≥ y)) est :", "une tautologie", ["fausse sur ℕ", "vraie seulement si y = 0", "non satisfiable"], "C'est une instance de X₁ ∨ ¬X₁ (proposition 16)."],
+  ["Une <b>valuation</b> est :", "une fonction des variables dans le domaine D", ["une fonction des variables dans {V, F}", "une relation d'arité 2", "un quantificateur"], "Exemple sur ℕ : v(x) = 1, v(y) = 8."],
+  ["L'arité de la relation ≤ est :", "2", ["1", "0", "3"], "Elle s'applique à deux termes : 2 ≤ 3."],
+  ["eval((3² ∗ 5² = 225) ∧ (6 ∗ 7 ≥ 51)) vaut :", "Faux", ["Vrai"], "225 = 225 est vrai mais 42 ≥ 51 est faux, donc ∧ donne Faux."],
+]};
+const bankQ = name => { const [q, good, bads, exp] = pick(BANK[name]); return choiceQ(q, good, bads, exp); };
+GEN.intro = () => bankQ("intro");
+GEN.coursSyntaxe = () => bankQ("syntaxe");
+GEN.coursSem = () => bankQ("semantique");
+GEN.coursFN = () => bankQ("fn");
+GEN.pred = () => bankQ("pred");
+
+const TYPES = {
+  num: "Changements de base", intro: "Cours : intro, syllogismes, numération", wellformed: "Formule bien formée ?", mainconn: "Connecteur principal",
+  height: "Hauteur d'une formule", coursSyntaxe: "Cours : syntaxe", evaluate: "Évaluer une formule", truthtable: "Table de vérité",
+  coursSem: "Cours : sémantique", classify: "Tautologie / satisfiable", equiv: "Formule équivalente", lawname: "Nommer la loi",
+  fnclass: "FNC ou FND ?", fnd: "FND depuis une table", coursFN: "Cours : formes normales", pred: "Logique des prédicats"
+};
+
+/* ================= EXERCICES TYPE TD ================= */
+const SLAWS = ["Implication", "Contraposée", "Loi de Morgan", "Double négation", "Distributivité", "Absorption", "Idempotence", "Associativité", "Commutativité", "Associativité et commutativité", "Simplification par une tautologie (≡ 1)", "Simplification par une formule non satisfiable (≡ 0)"];
+const CHAINS = [
+  { s: "(X₁ ⇒ X₂) ∨ X₂", L: [["(¬X₁ ∨ X₂) ∨ X₂", "Implication"], ["¬X₁ ∨ (X₂ ∨ X₂)", "Associativité"], ["¬X₁ ∨ X₂", "Idempotence"], ["X₁ ⇒ X₂", "Implication"]], w: ["X₂", "1", "X₁ ∧ X₂"] },
+  { s: "(X₁ ⇒ X₂) ⇒ X₁", L: [["(¬X₁ ∨ X₂) ⇒ X₁", "Implication"], ["¬(¬X₁ ∨ X₂) ∨ X₁", "Implication"], ["(X₁ ∧ ¬X₂) ∨ X₁", "Loi de Morgan"], ["X₁", "Absorption"]], w: ["X₂", "1", "¬X₁"] },
+  { s: "(X₁ ⇒ X₂) ⇒ ¬X₁", L: [["(¬X₁ ∨ X₂) ⇒ ¬X₁", "Implication"], ["¬(¬X₁ ∨ X₂) ∨ ¬X₁", "Implication"], ["(X₁ ∧ ¬X₂) ∨ ¬X₁", "Loi de Morgan"], ["(X₁ ∨ ¬X₁) ∧ (¬X₂ ∨ ¬X₁)", "Distributivité"], ["¬X₂ ∨ ¬X₁", "Simplification par une tautologie (≡ 1)"], ["X₂ ⇒ ¬X₁", "Implication"]], w: ["¬X₁", "X₁ ⇒ X₂", "0"] },
+  { s: "(X₁ ∧ X₂) ⇒ (X₁ ∨ X₃)", L: [["¬(X₁ ∧ X₂) ∨ (X₁ ∨ X₃)", "Implication"], ["(¬X₁ ∨ ¬X₂) ∨ (X₁ ∨ X₃)", "Loi de Morgan"], ["(¬X₁ ∨ X₁) ∨ (¬X₂ ∨ X₃)", "Associativité et commutativité"], ["1", "Simplification par une tautologie (≡ 1)"]], w: ["X₁ ∨ X₃", "X₂ ⇒ X₃", "0"], fin: "1 : c'est une tautologie" },
+  { s: "¬(X₁ ⇒ (X₂ ∧ ¬X₃))", L: [["¬(¬X₁ ∨ (X₂ ∧ ¬X₃))", "Implication"], ["¬¬X₁ ∧ ¬(X₂ ∧ ¬X₃)", "Loi de Morgan"], ["X₁ ∧ ¬(X₂ ∧ ¬X₃)", "Double négation"], ["X₁ ∧ (¬X₂ ∨ X₃)", "Loi de Morgan"], ["(X₁ ∧ ¬X₂) ∨ (X₁ ∧ X₃)", "Distributivité"]], w: ["X₁ ∧ X₂ ∧ ¬X₃", "(¬X₁ ∨ X₂) ∧ ¬X₃", "¬X₁ ∨ X₂"] },
+  { s: "X₁ ∧ (¬X₁ ∨ X₂)", L: [["(X₁ ∧ ¬X₁) ∨ (X₁ ∧ X₂)", "Distributivité"], ["X₁ ∧ X₂", "Simplification par une formule non satisfiable (≡ 0)"]], w: ["X₂", "X₁", "X₁ ∨ X₂"] },
+  { s: "(X₁ ∨ X₂) ∧ ¬X₁", L: [["¬X₁ ∧ (X₁ ∨ X₂)", "Commutativité"], ["(¬X₁ ∧ X₁) ∨ (¬X₁ ∧ X₂)", "Distributivité"], ["¬X₁ ∧ X₂", "Simplification par une formule non satisfiable (≡ 0)"]], w: ["X₂", "X₁ ∧ X₂", "¬X₁"] },
+  { s: "¬(X₁ ∨ ¬X₂) ∨ X₂", L: [["(¬X₁ ∧ ¬¬X₂) ∨ X₂", "Loi de Morgan"], ["(¬X₁ ∧ X₂) ∨ X₂", "Double négation"], ["X₂ ∨ (X₂ ∧ ¬X₁)", "Commutativité"], ["X₂", "Absorption"]], w: ["¬X₁", "X₁ ∨ X₂", "1"] },
+  { s: "(X₁ ⇒ X₂) ∧ (X₁ ⇒ ¬X₂)", L: [["(¬X₁ ∨ X₂) ∧ (¬X₁ ∨ ¬X₂)", "Implication"], ["¬X₁ ∨ (X₂ ∧ ¬X₂)", "Distributivité"], ["¬X₁", "Simplification par une formule non satisfiable (≡ 0)"]], w: ["X₂", "0", "X₁ ⇒ X₂"] },
+  { s: "¬(X₁ ∧ X₂) ⇒ ¬X₁", L: [["¬¬(X₁ ∧ X₂) ∨ ¬X₁", "Implication"], ["(X₁ ∧ X₂) ∨ ¬X₁", "Double négation"], ["(X₁ ∨ ¬X₁) ∧ (X₂ ∨ ¬X₁)", "Distributivité"], ["X₂ ∨ ¬X₁", "Simplification par une tautologie (≡ 1)"], ["X₁ ⇒ X₂", "Implication"]], w: ["¬X₁", "X₂", "1"] },
+];
+const firstWord = s => s.split(" ")[0];
+const SYLLO = [
+  ["Tous les hommes sont mortels.", "Socrate est un homme.", "Socrate est mortel.", "inc", "inc", true, "S ⊆ H et H ⊆ M donnent S ⊆ M."],
+  ["Les chiens ont des plumes.", "Aucune créature à plumes ne mange de spaghetti.", "Les chiens ne mangent pas de spaghetti.", "inc", "disj", true, "C ⊆ P et P ∩ S = ∅ donnent C ∩ S = ∅. Valide même si les phrases sont fausses."],
+  ["Les rats mangent du fromage.", "Les rats sont des problèmes.", "Les problèmes mangent du fromage.", "inc", "inc", false, "R ⊆ F et R ⊆ P : on peut dessiner P qui dépasse de F. La conclusion P ⊆ F n'est pas forcée."],
+  ["Aucun poisson ne vole.", "Certains oiseaux volent.", "Certains oiseaux ne sont pas des poissons.", "disj", "inter", true, "Un oiseau qui vole est hors de l'ensemble des poissons : O ⊄ P."],
+  ["Tous les chats sont des félins.", "Certains félins sont noirs.", "Certains chats sont noirs.", "inc", "inter", false, "Les félins noirs peuvent être tous en dehors des chats : on dessine un diagramme où la conclusion est fausse."],
+  ["Tous les profs sont patients.", "Aucune personne patiente n'est stressée.", "Aucun prof n'est stressé.", "inc", "disj", true, "Pr ⊆ Pa et Pa ∩ S = ∅ donnent Pr ∩ S = ∅."],
+  ["Certains étudiants aiment la logique.", "Tous les étudiants sont fatigués.", "Certaines personnes fatiguées aiment la logique.", "inter", "inc", true, "Un étudiant qui aime la logique est aussi fatigué : F ∩ L ≠ ∅."],
+  ["Certains sportifs ne fument pas.", "Tous les sportifs sont en forme.", "Certaines personnes en forme ne fument pas.", "noninc", "inc", true, "Un sportif non-fumeur est en forme : il existe une personne en forme qui ne fume pas."],
+  ["Aucun reptile n'a de poils.", "Tous les serpents sont des reptiles.", "Certains serpents ont des poils.", "disj", "inc", false, "Au contraire : S ⊆ R et R ∩ P = ∅ donnent S ∩ P = ∅. La conclusion est même forcément fausse."],
+];
+const REL = { inc: "Inclusion (A ⊆ B)", disj: "Disjoints (A ∩ B = ∅)", inter: "Intersection non vide", noninc: "Non-inclusion (A ⊄ B)" };
+const PREDEX = [
+  { c: "Domaine D = ℕ. Soit F = <span class='f'>∀x ∃y (y > x)</span>.", s: [
+    ["F est-elle vraie ?", "Vraie", ["Fausse"], "Pour chaque x, y = x + 1 convient."],
+    ["Quelle est la négation de F ?", "∃x ∀y (y ≤ x)", ["∀x ∃y (y ≤ x)", "∃x ∀y (y < x)", "∃y ∀x (y ≤ x)"], "On échange les quantificateurs et on nie y > x en y ≤ x."],
+    ["G = ∃y ∀x (y > x) est :", "Fausse", ["Vraie"], "Il faudrait un entier plus grand que tous les autres, y compris lui-même."],
+    ["Conclusion : peut-on échanger ∀x et ∃y ?", "Non, l'ordre des quantificateurs change le sens", ["Oui, toujours", "Oui, sur ℕ seulement", "Seulement si la formule est vraie"], "F est vraie et G est fausse : l'ordre compte."]] },
+  { c: "Domaine D = ℝ. On veut écrire « Tout nombre positif est un carré ».", s: [
+    ["Quelle formule convient ?", "∀x ≥ 0 ∃y (x = y ∗ y)", ["∃y ∀x ≥ 0 (x = y ∗ y)", "∀x ≥ 0 ∀y (x = y ∗ y)", "∃x ≥ 0 ∃y (x = y ∗ y)"], "Pour tout x positif, il existe un y (qui dépend de x) tel que x = y²."],
+    ["Sans raccourci, ∀x ≥ 0 … s'écrit :", "∀x ((x ≥ 0) ⇒ ∃y (x = y ∗ y))", ["∀x ((x ≥ 0) ∧ ∃y (x = y ∗ y))", "∃x ((x ≥ 0) ⇒ ∃y (x = y ∗ y))", "∀x ∃y ((x ≥ 0) ∧ (x = y ∗ y))"], "∀x : r(x) P = ∀x (r(x) ⇒ P)."],
+    ["Cette formule est-elle vraie sur ℝ ?", "Vraie", ["Fausse"], "y = √x existe pour tout x ≥ 0."],
+    ["Et sur ℕ ?", "Fausse", ["Vraie"], "x = 2 n'est le carré d'aucun entier."],
+    ["Sa négation est :", "∃x ((x ≥ 0) ∧ ∀y (x ≠ y ∗ y))", ["∃x ((x < 0) ∧ ∀y (x ≠ y ∗ y))", "∀x ((x ≥ 0) ⇒ ∀y (x ≠ y ∗ y))", "∃x ((x ≥ 0) ⇒ ∃y (x ≠ y ∗ y))"], "¬∀x (A ⇒ B) ≡ ∃x (A ∧ ¬B), puis ¬∃y devient ∀y¬."]] },
+  { c: "Domaine D = ℕ. Soit F = <span class='f'>∀n ((n | p) ⇒ ((n = 1) ∨ (n = p)))</span>.", s: [
+    ["Quelles sont les variables libres de F ?", "p seulement", ["n seulement", "n et p", "aucune"], "n est liée par ∀n ; p n'est quantifiée nulle part."],
+    ["Pour p = 7, F vaut :", "Vrai", ["Faux"], "Les seuls diviseurs de 7 sont 1 et 7."],
+    ["Pour p = 6, F vaut :", "Faux", ["Vrai"], "n = 2 divise 6 mais n'est ni 1 ni 6."],
+    ["Que signifie F ?", "p est premier (ses seuls diviseurs sont 1 et p)", ["p est pair", "p divise tous les entiers", "tout entier est premier"], "C'est l'exemple du poly."],
+    ["La négation de F est :", "∃n ((n | p) ∧ (n ≠ 1) ∧ (n ≠ p))", ["∀n ((n | p) ∧ (n ≠ 1) ∧ (n ≠ p))", "∃n ((n | p) ⇒ ((n ≠ 1) ∨ (n ≠ p)))", "∃n (¬(n | p) ∧ ((n = 1) ∨ (n = p)))"], "¬∀n(A ⇒ B) ≡ ∃n(A ∧ ¬B), et ¬(C ∨ D) ≡ ¬C ∧ ¬D."]] },
+  { c: "Domaine D = ℕ. Soit F = <span class='f'>(x > 3) ∨ (y = 8)</span>.", s: [
+    ["F est :", "une formule avec deux variables libres", ["un terme", "une formule sans variable libre", "une formule atomique"], "Il faut une valuation de x et de y pour l'évaluer."],
+    ["Avec v(x) = 12 et v(y) = 51, F vaut :", "Vrai", ["Faux"], "12 > 3 est vrai."],
+    ["Avec v(x) = 3 et v(y) = 1664, F vaut :", "Faux", ["Vrai"], "3 > 3 est faux et 1664 = 8 est faux."],
+    ["On pose G = ∀x F. Avec v(y) = 8, G vaut :", "Vrai", ["Faux"], "y = 8 rend F vraie quel que soit x."],
+    ["Avec v(y) = 0, G vaut :", "Faux", ["Vrai"], "x = 0 donne (0 > 3) ∨ (0 = 8) = Faux."]] },
+  { c: "Domaine D = ℝ. Soit F = <span class='f'>∀x∀y((x < y) ⇒ ∃z((x < z) ∧ (z < y)))</span>. On calcule ¬F pas à pas.", s: [
+    ["Étape 1 : ¬F ≡", "∃x∃y ¬((x < y) ⇒ ∃z((x < z) ∧ (z < y)))", ["∀x∀y ¬((x < y) ⇒ ∃z((x < z) ∧ (z < y)))", "∃x∃y ((x < y) ⇒ ¬∃z((x < z) ∧ (z < y)))", "∃x∀y ¬((x < y) ⇒ ∃z((x < z) ∧ (z < y)))"], "Chaque ¬∀ devient ∃¬."],
+    ["Étape 2 : avec ¬(A ⇒ B) ≡ A ∧ ¬B, on obtient", "∃x∃y((x < y) ∧ ¬∃z((x < z) ∧ (z < y)))", ["∃x∃y(¬(x < y) ∨ ∃z((x < z) ∧ (z < y)))", "∃x∃y((x ≥ y) ∧ ¬∃z((x < z) ∧ (z < y)))", "∃x∃y((x < y) ⇒ ¬∃z((x < z) ∧ (z < y)))"], "A reste tel quel, on nie seulement B."],
+    ["Étape 3 : on termine avec ¬∃ ≡ ∀¬ et Morgan :", "∃x∃y((x < y) ∧ ∀z((x ≥ z) ∨ (z ≥ y)))", ["∃x∃y((x < y) ∧ ∀z((x ≥ z) ∧ (z ≥ y)))", "∃x∃y((x < y) ∧ ∃z((x ≥ z) ∨ (z ≥ y)))", "∃x∃y((x < y) ∧ ∀z((x > z) ∨ (z > y)))"], "¬(x < z) ≡ x ≥ z et ¬(z < y) ≡ z ≥ y."],
+    ["F est-elle vraie sur ℝ ?", "Vraie", ["Fausse"], "z = (x + y) / 2 convient."],
+    ["Et sur ℤ ?", "Fausse", ["Vraie"], "x = 0, y = 1 : aucun entier strictement entre les deux."]] },
+  { c: "Domaine D = étudiants et groupes de TD. Relations : E(e) « e est un étudiant », G(g) « g est un groupe », appartient(e, g).", s: [
+    ["« Tous les étudiants appartiennent à un groupe de TD » s'écrit :", "∀e ∈ E ∃g ∈ G appartient(e, g)", ["∃g ∈ G ∀e ∈ E appartient(e, g)", "∀e ∈ E ∀g ∈ G appartient(e, g)", "∃e ∈ E ∃g ∈ G appartient(e, g)"], "Chaque étudiant a son groupe, qui peut changer d'un étudiant à l'autre."],
+    ["Sans raccourci, cela donne :", "∀e (E(e) ⇒ ∃g (G(g) ∧ appartient(e, g)))", ["∀e (E(e) ∧ ∃g (G(g) ⇒ appartient(e, g)))", "∀e ∃g (E(e) ∧ G(g) ∧ appartient(e, g))", "∀e (E(e) ⇒ ∃g (G(g) ⇒ appartient(e, g)))"], "∀ avec condition → ⇒ ; ∃ avec condition → ∧."],
+    ["La négation est :", "∃e ∈ E ∀g ∈ G ¬appartient(e, g)", ["∀e ∈ E ∀g ∈ G ¬appartient(e, g)", "∃e ∈ E ∃g ∈ G ¬appartient(e, g)", "∃e ∉ E ∀g ∉ G appartient(e, g)"], "On garde les conditions, on échange ∀/∃ et on nie la fin."],
+    ["En français, la négation dit :", "Il existe un étudiant qui n'est dans aucun groupe", ["Aucun étudiant n'a de groupe", "Il existe un groupe vide", "Un étudiant est dans tous les groupes"], "∃e ∀g ¬appartient(e, g)."]] },
+];
+const REDAC = [
+  { t: "Montrer par induction que toute formule a autant de parenthèses ouvrantes que fermantes.", s: `<b>Cas de base :</b> X<sub>i</sub> a 0 ouvrante et 0 fermante.<br><b>Hérédité :</b> supposons que P a o<sub>P</sub> = f<sub>P</sub> et Q a o<sub>Q</sub> = f<sub>Q</sub>.<br>• (¬P) a o<sub>P</sub> + 1 ouvrantes et f<sub>P</sub> + 1 fermantes : égales.<br>• (P c Q), c ∈ {∧, ∨, ⇒}, a o<sub>P</sub> + o<sub>Q</sub> + 1 ouvrantes et f<sub>P</sub> + f<sub>Q</sub> + 1 fermantes : égales.<br>Par le principe d'induction, la propriété est vraie pour toute formule.` },
+  { t: "Montrer avec une table de vérité que P ⇒ Q ≡ (¬Q) ⇒ (¬P).", s: `<div class="scroll"><table class="tt"><tr><th>P</th><th>Q</th><th>P ⇒ Q</th><th>¬Q</th><th>¬P</th><th>¬Q ⇒ ¬P</th></tr><tr><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>1</td></tr><tr><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td></tr><tr><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td><td>1</td></tr><tr><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td></tr></table></div>Les colonnes P ⇒ Q et ¬Q ⇒ ¬P sont identiques : les formules sont équivalentes.` },
+  { t: "Montrer que Q = (X₁ ∧ X₂) ⇒ (X₁ ∨ X₃) est une tautologie par simplifications partielles (couper selon X₂ puis X₁).", s: `• Si X₂ = 0 : Q ≡ (X₁ ∧ 0) ⇒ (X₁ ∨ X₃) ≡ 0 ⇒ (X₁ ∨ X₃) ≡ 1.<br>• Si X₂ = 1 : Q ≡ X₁ ⇒ (X₁ ∨ X₃).<br>&nbsp;&nbsp;– Si X₁ = 1 : Q ≡ 1 ⇒ (1 ∨ X₃) ≡ 1 ⇒ 1 ≡ 1.<br>&nbsp;&nbsp;– Si X₁ = 0 : Q ≡ 0 ⇒ X₃ ≡ 1.<br>Q vaut 1 dans tous les cas : c'est une tautologie.` },
+  { t: "Démontrer : P est une tautologie si et seulement si ¬P est non satisfiable.", s: `P est une tautologie ⇔ pour toute affectation ν, eval<sub>ν</sub>(P) = 1<br>⇔ pour toute ν, eval<sub>ν</sub>(¬P) = 0 (table de ¬)<br>⇔ il n'existe aucune ν telle que eval<sub>ν</sub>(¬P) = 1<br>⇔ ¬P est non satisfiable.` },
+  { t: "Convertir 23,8125 en base 2 en détaillant la méthode.", s: `Partie entière : 23 = 2×11 + <b>1</b> ; 11 = 2×5 + <b>1</b> ; 5 = 2×2 + <b>1</b> ; 2 = 2×1 + <b>0</b> ; 1 = 2×0 + <b>1</b> → 23 = (10111)₂.<br>Partie fractionnaire : 0,8125×2 = 1,625 → <b>1</b> ; 0,625×2 = 1,25 → <b>1</b> ; 0,25×2 = 0,5 → <b>0</b> ; 0,5×2 = 1 → <b>1</b>.<br>Donc 23,8125 = (10111,1101)₂.` },
+  { t: "Montrer par induction que la hauteur d'une formule est inférieure ou égale à son nombre de connecteurs c(F).", s: `<b>Base :</b> h(X<sub>i</sub>) = 0 = c(X<sub>i</sub>).<br><b>Hérédité :</b> h(¬P) = h(P) + 1 ≤ c(P) + 1 = c(¬P).<br>h(P c Q) = max(h(P), h(Q)) + 1 ≤ max(c(P), c(Q)) + 1 ≤ c(P) + c(Q) + 1 = c(P c Q).<br>Conclusion par induction.` },
+  { t: "Écrire une FND de la formule Q vraie exactement pour (X₁, X₂, X₃) = (1, 0, 1), (0, 1, 1) et (0, 1, 0).", s: `Une conjonction par ligne vraie :<br>(1, 0, 1) → X₁ ∧ ¬X₂ ∧ X₃<br>(0, 1, 1) → ¬X₁ ∧ X₂ ∧ X₃<br>(0, 1, 0) → ¬X₁ ∧ X₂ ∧ ¬X₃<br>Q ≡ (X₁ ∧ ¬X₂ ∧ X₃) ∨ (¬X₁ ∧ X₂ ∧ X₃) ∨ (¬X₁ ∧ X₂ ∧ ¬X₃).` },
+  { t: "Justifier que (X₁ ∨ (X₂ ∧ X₃)) est une formule, dessiner son arbre et donner sa hauteur.", s: `X₁, X₂, X₃ sont des formules (règle 1). Donc (X₂ ∧ X₃) est une formule (règle ∧). Donc (X₁ ∨ (X₂ ∧ X₃)) est une formule (règle ∨).<br>Arbre : racine ∨ ; fils gauche X₁ ; fils droit ∧, lui-même de fils X₂ et X₃.<br>Hauteur : h = max(0, max(0, 0) + 1) + 1 = <b>2</b>.` },
+  { t: "Écrire sur ℝ « entre deux réels distincts il y a toujours un troisième réel », puis sa négation.", s: `F = ∀x∀y((x < y) ⇒ ∃z((x < z) ∧ (z < y))).<br>¬F ≡ ∃x∃y((x < y) ∧ ∀z((x ≥ z) ∨ (z ≥ y))) : « il existe deux réels x < y sans aucun réel strictement entre eux ».` },
+  { t: "Montrer que 0,1 n'a pas d'écriture finie en base 2.", s: `Multiplications successives par 2 : 0,1 → 0,2 (0) → 0,4 (0) → 0,8 (0) → 1,6 (1, reste 0,6) → 1,2 (1, reste 0,2) → 0,4 (0)…<br>On retombe sur 0,2 : les calculs bouclent et ne s'arrêtent jamais. 0,1 = (0,0 0011 0011…)₂, avec 0011 répété à l'infini.` },
+  { t: "Simplifier (X₁ ⇒ X₂) ⇒ (¬X₁) en citant chaque loi.", s: `≡ (¬X₁ ∨ X₂) ⇒ ¬X₁ (implication)<br>≡ ¬(¬X₁ ∨ X₂) ∨ ¬X₁ (implication)<br>≡ (X₁ ∧ ¬X₂) ∨ ¬X₁ (Morgan)<br>≡ (X₁ ∨ ¬X₁) ∧ (¬X₂ ∨ ¬X₁) (distributivité)<br>≡ ¬X₂ ∨ ¬X₁ (X₁ ∨ ¬X₁ est une tautologie)<br>≡ X₂ ⇒ ¬X₁ (implication).` },
+  { t: "Montrer que P ≡ Q si et seulement si (P ⇒ Q) ∧ (Q ⇒ P) est une tautologie.", s: `P ⇒ Q est fausse seulement pour les ν avec eval(P) = 1 et eval(Q) = 0. Donc P ⇒ Q est une tautologie ⇔ toute ν qui satisfait P satisfait Q. De même pour Q ⇒ P.<br>La conjonction est une tautologie ⇔ les deux le sont ⇔ P et Q sont satisfaites exactement par les mêmes affectations ⇔ P ≡ Q.` },
+];
+
+function tableStep(f) { return { kind: "table", prompt: `Remplis la table de vérité de F (dernière colonne).`, f, vs: sortedVars(f), label: "Table de vérité" }; }
+const EXOS = {
+  numeration: { g: "→₂", title: "Conversions en série", desc: "Un même nombre dans plusieurs bases, puis un nombre à virgule", make() {
+    const n = 100 + R(900), b = pick([3, 5, 7, 8]);
+    const s = [numQ("d2b", n), numQ("d2h", n), inputQ(`Écris ${n} en base ${b}.`, n.toString(b), divSteps(n, b)), numQ("b2d"), numQ("fd2b"), numQ("fb2d")];
+    s[0].label = "Base 10 → base 2"; s[1].label = "Base 10 → base 16"; s[1].prompt += `<br><span class="muted">Astuce : regroupe par 4 les bits trouvés juste avant.</span>`; s[2].label = `Base 10 → base ${b}`; s[3].label = "Base 2 → base 10"; s[4].label = "Réel → base 2"; s[5].label = "Base 2 → réel";
+    return { context: `Soit N = <b>${n}</b>. Les trois premières questions portent sur N.`, steps: s };
+  } },
+  formule: { g: "F", title: "Étude complète d'une formule", desc: "Connecteur principal, hauteur, table, nature, FND", make() {
+    const nv = Math.random() < 0.5 ? 2 : 3; let f; do { f = genUsing(2 + R(2), nv); } while (f.t === "v");
+    const vs = sortedVars(f), k = kind(f);
+    const s = [Object.assign(GEN.mainconn(f), { label: "Connecteur principal" }), Object.assign(GEN.height(f), { label: "Hauteur" }), tableStep(f), Object.assign(classifyOf(f), { label: "Nature de F" })];
+    if (k === "sat") s.push(Object.assign(fndQ(e => ev(f, e), vs), { label: "FND de F" }));
+    else s.push(choiceQ(`Que peut-on dire de <b>¬F</b> ?`, k === "taut" ? "¬F est non satisfiable" : "¬F est une tautologie", [k === "taut" ? "¬F est une tautologie" : "¬F est non satisfiable", "¬F est satisfiable mais pas une tautologie"], "P est une tautologie si et seulement si ¬P est non satisfiable (et inversement).", "Négation de F"));
+    return { context: `Soit <b>F</b> = ${F(f)}<br><span class="muted">Écriture stricte :</span> <span class="f">${esc(strictStr(f))}</span>`, steps: s };
+  } },
+  simplif: { g: "≡", title: "Simplification guidée", desc: "Justifie chaque étape d'une chaîne d'équivalences", make() {
+    const c = pick(CHAINS); let prev = c.s; const steps = [];
+    c.L.forEach(([to, law], i) => {
+      const others = shuffle(SLAWS.filter(l => l !== law && firstWord(l) !== firstWord(law) && !l.includes(law) && !law.includes(l)));
+      steps.push(choiceQ(`Étape ${i + 1} :<br><span class="f">${esc(prev)}</span><br>≡ <span class="f">${esc(to)}</span><br><br>Quelle loi a-t-on utilisée ?`, law, others, `On a utilisé : <b>${law}</b>.`, `Étape ${i + 1} sur ${c.L.length}`));
+      prev = to;
+    });
+    const fin = c.fin || c.L[c.L.length - 1][0];
+    steps.push(choiceQ(`Conclusion : la formule de départ est équivalente à…`, fin, c.w, `Chaîne complète :<br><span class="fw">${esc(c.s)}<br>${c.L.map(([t, l]) => `≡ ${esc(t)} <span class="muted">(${esc(l)})</span>`).join("<br>")}</span>`, "Conclusion"));
+    return { context: `Simplifier <span class="f big">${esc(c.s)}</span>`, steps };
+  } },
+  normal: { g: "FNC", title: "Mise en forme normale", desc: "Supprimer les ⇒, descendre les ¬, distribuer", make() {
+    let f, e, n, c, d;
+    for (let k = 0; k < 200; k++) {
+      f = genUsing(2, 3); if (!hasImp(f)) continue;
+      e = elimImp(f); n = nnf(e); c = toCNF(n); d = toDNF(n);
+      if (size(c) <= 19 && size(d) <= 19 && show(n) !== show(e)) break;
+    }
+    const st = (title, corr, ref, exp) => { const bads = distract(corr, ref, 3); return choiceQ(title, `<span class="f">${esc(show(corr, true, true))}</span>`, bads.map(b => `<span class="f">${esc(b)}</span>`), exp); };
+    const steps = [
+      Object.assign(st(`Étape 1 : on supprime les ⇒ avec P ⇒ Q ≡ ¬P ∨ Q. On obtient :`, e, f, "Chaque P ⇒ Q devient ¬P ∨ Q, sans toucher au reste."), { label: "Supprimer les ⇒" }),
+      Object.assign(st(`Étape 2 : on fait descendre les ¬ jusqu'aux variables (Morgan, ¬¬P ≡ P). On obtient :`, n, f, "¬(P ∧ Q) ≡ ¬P ∨ ¬Q, ¬(P ∨ Q) ≡ ¬P ∧ ¬Q, ¬¬P ≡ P."), { label: "Descendre les ¬" }),
+      Object.assign(st(`Étape 3 : en distribuant ∨ sur ∧, une <b>FNC</b> équivalente est :`, c, f, "P ∨ (Q ∧ R) ≡ (P ∨ Q) ∧ (P ∨ R) : on obtient une conjonction de clauses."), { label: "FNC" }),
+      Object.assign(st(`Étape 4 : en distribuant ∧ sur ∨, une <b>FND</b> équivalente est :`, d, f, "P ∧ (Q ∨ R) ≡ (P ∧ Q) ∨ (P ∧ R) : on obtient une disjonction de conjonctions de littéraux."), { label: "FND" }),
+    ];
+    return { context: `Mettre sous forme normale : <span class="f big">${esc(show(f))}</span>`, steps };
+  } },
+  syllog: { g: "∴", title: "Syllogismes", desc: "Relations entre ensembles et validité (hors programme CC, bonus)", make() {
+    const items = shuffle(SYLLO).slice(0, 3); const steps = [];
+    items.forEach(([p1, p2, cc, r1, r2, valid, why], i) => {
+      const ctx = `<b>Syllogisme ${i + 1}</b><br>${p1}<br>${p2}<br>Donc ${cc.charAt(0).toLowerCase() + cc.slice(1)}`;
+      steps.push(Object.assign(choiceQ(`Quelle relation exprime la 1re prémisse « ${p1} » ?`, REL[r1], Object.values(REL).filter(x => x !== REL[r1]), "Toutes / les … sont : inclusion. Aucun : disjoints. Certains / il existe : intersection non vide. Certains … ne … pas : non-inclusion.", `Syllogisme ${i + 1} · prémisse 1`), { context: ctx }));
+      steps.push(Object.assign(choiceQ(`Et la 2e prémisse « ${p2} » ?`, REL[r2], Object.values(REL).filter(x => x !== REL[r2]), "Toutes / les … sont : inclusion. Aucun : disjoints. Certains : intersection non vide. Certains … ne … pas : non-inclusion.", `Syllogisme ${i + 1} · prémisse 2`), { context: ctx }));
+      steps.push(Object.assign(choiceQ(`Ce syllogisme est-il valide ?`, valid ? "Valide" : "Non valide", [valid ? "Non valide" : "Valide"], why, `Syllogisme ${i + 1} · validité`), { context: ctx }));
+    });
+    return { context: "", steps };
+  } },
+  predicats: { g: "∀∃", title: "Prédicats pas à pas", desc: "Évaluer, traduire, nier une formule du premier ordre", make() {
+    const ex = pick(PREDEX);
+    return { context: ex.c, steps: ex.s.map(([q, g, b, e], i) => choiceQ(q, g, b, e, `Question ${i + 1}`)) };
+  } },
+  redaction: { g: "✎", title: "Exercices à rédiger", desc: "Écris ta réponse sur papier, puis compare avec la correction", make() {
+    return { context: `<b>Sur ta feuille.</b> Rédige la réponse comme en CC, puis affiche la correction et note-toi honnêtement.`, steps: shuffle(REDAC).slice(0, 3).map((r, i) => ({ kind: "reveal", prompt: r.t, solution: r.s, label: `Rédaction ${i + 1} sur 3` })) };
+  } },
+};
+
+/* ================= MONDES ================= */
+const WORLDS = [
+  { id: "w0", g: "∴", name: "Introduction", sub: "Syllogismes, logique, Gödel", types: ["intro"], n: 10 },
+  { id: "w1", g: "1011", name: "Numération", sub: "Bases 2, 10, 16, B et nombres à virgule", types: ["num", "num", "num", "intro"], n: 10 },
+  { id: "w2", g: "( )", name: "Syntaxe", sub: "Formules, lecture unique, poids, hauteur", types: ["wellformed", "mainconn", "height", "coursSyntaxe"], n: 10 },
+  { id: "w3", g: "0|1", name: "Sémantique", sub: "Évaluation et tables de vérité", types: ["evaluate", "evaluate", "truthtable", "coursSem"], n: 10 },
+  { id: "w4", g: "≡", name: "Tautologies et équivalences", sub: "Lois de Morgan, simplifications", types: ["classify", "equiv", "lawname", "coursSem"], n: 10 },
+  { id: "w5", g: "∧∨", name: "Formes normales", sub: "Littéraux, clauses, FNC, FND", types: ["fnclass", "fnd", "coursFN"], n: 10 },
+  { id: "w6", g: "∀x", name: "Logique des prédicats", sub: "Termes, quantificateurs, négations", types: ["pred"], n: 10 },
+  { id: "exam", g: "/20", name: "Examen blanc", sub: "20 questions, 20 minutes, note sur 20", types: ["num", "wellformed", "mainconn", "height", "evaluate", "truthtable", "classify", "equiv", "lawname", "fnclass", "fnd", "pred", "pred", "coursSem", "coursSyntaxe", "coursFN", "intro"], n: 20, timer: 20 * 60 }
+];
+const RANKS = [[0, "Apprenti·e logicien·ne"], [150, "Manipulateur·rice de bits"], [400, "Dompteur·se de parenthèses"], [800, "Maître·sse des tables"], [1400, "Gardien·ne de Morgan"], [2200, "Quantificateur·rice suprême"], [3200, "Héritier·e de Gödel"]];
+
+/* ================= SAUVEGARDE (dans ce navigateur) ================= */
+const KEY = "logique-quest-v1";
+let S = { xp: 0, best: {}, stats: {}, theme: null };
+try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(S, JSON.parse(raw)); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+if (S.theme) document.documentElement.setAttribute("data-theme", S.theme);
+function rankOf(xp) { let r = RANKS[0], next = null; for (let i = 0; i < RANKS.length; i++) if (xp >= RANKS[i][0]) { r = RANKS[i]; next = RANKS[i + 1] || null; } return { name: r[1], from: r[0], next }; }
+const starsFor = (score, n) => { const p = score / n; return p >= 0.9 ? 3 : p >= 0.7 ? 2 : p >= 0.5 ? 1 : 0; };
+const starStr = k => "★".repeat(k) + "☆".repeat(3 - k);
+
+/* ================= ÉCRANS ================= */
+let run = null, timerId = null;
+const app = $("#app");
+function header() {
+  const r = rankOf(S.xp); const pct = r.next ? Math.round(100 * (S.xp - r.from) / (r.next[0] - r.from)) : 100;
+  return `<header class="top"><div class="brand"><small>Logique · L1</small><h1>Logique Quest</h1></div>
+  <div class="xp"><div class="row" style="justify-content:space-between"><b>${r.name}</b><span class="muted">${S.xp} XP</span></div>
+  <div class="bar"><i style="width:${pct}%"></i></div><span class="muted" style="font-size:13px">${r.next ? `Rang suivant : ${r.next[1]} (${r.next[0]} XP)` : "Rang maximal atteint"}</span></div></header>`;
+}
+function tile(glyph, title, sub, meta, onclick) {
+  return `<button class="tile" onclick="${onclick}"><span class="glyph">${glyph}</span><b>${title}</b><span class="sub">${sub}</span><span class="meta">${meta}</span></button>`;
+}
+function home() {
+  clearInterval(timerId); run = null;
+  const worlds = WORLDS.map((w, i) => { const b = S.best[w.id]; return tile(w.g, (i && i < 7 ? `Monde ${i} · ` : "") + w.name, w.sub, `<span class="stars">${starStr(b != null ? starsFor(b, w.n) : 0)}</span>${b != null ? `record ${b}/${w.n}` : "pas encore joué"}`, `startWorld(${i})`); }).join("");
+  const exos = Object.entries(EXOS).map(([k, e]) => { const b = S.best["ex-" + k]; return tile(e.g, e.title, e.desc, b != null ? `meilleur : ${Math.round(b * 100)} %` : "pas encore fait", `startExo('${k}')`); }).join("");
+  app.innerHTML = `<div class="stack">${header()}
+  <nav class="nav"><button onclick="fiches()">Fiches de cours</button><button onclick="training()">Entraînement libre</button><button onclick="stats()">Statistiques</button><button onclick="toggleTheme()">Thème clair / sombre</button></nav>
+  <div class="section-head"><h2>Chapitres</h2><span class="muted">10 questions par partie, corrigées tout de suite</span></div>
+  <div class="grid">${worlds}</div>
+  <div class="section-head"><h2>Exercices type TD</h2><span class="muted">Énoncés en plusieurs questions, comme en CC</span></div>
+  <div class="grid">${exos}</div>
+  <p class="muted" style="font-size:14px">Raccourcis : <span class="kbd">Entrée</span> valide et passe à la suite, <span class="kbd">1</span> à <span class="kbd">4</span> choisissent une réponse. Ta progression reste dans ce navigateur.</p></div>`;
+  window.scrollTo(0, 0);
+}
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute("data-theme");
+  const dark = cur ? cur === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  S.theme = dark ? "light" : "dark"; document.documentElement.setAttribute("data-theme", S.theme); save(); home();
+}
+function newRun(w) {
+  clearInterval(timerId);
+  run = { w, idx: 0, score: 0, combo: 0, maxCombo: 0, results: [], q: null, answered: false, xp: 0, deadline: w.timer ? Date.now() + w.timer * 1000 : null };
+  if (w.timer) timerId = setInterval(tick, 500);
+  nextQ();
+}
+function startWorld(i, freeType) { newRun(freeType ? { id: "free", g: "∞", name: TYPES[freeType], types: [freeType], n: Infinity } : WORLDS[i]); }
+function startExo(k) {
+  let ex; for (let t = 0; t < 5 && !ex; t++) { try { ex = EXOS[k].make(); } catch (e) { console.error(e); } }
+  newRun({ id: "ex-" + k, ex: k, g: EXOS[k].g, name: EXOS[k].title, fixed: ex.steps, context: ex.context, n: ex.steps.length });
+}
+function tick() {
+  if (!run || !run.deadline) return;
+  const left = Math.max(0, Math.round((run.deadline - Date.now()) / 1000));
+  const el = $("#timer"); if (el) el.textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
+  if (left <= 0) { clearInterval(timerId); endRun(true); }
+}
+function makeQ(type) { for (let k = 0; k < 5; k++) { try { const q = GEN[type](); q.type = type; return q; } catch (e) { console.error(e); } } }
+function nextQ() {
+  if (run.idx >= run.w.n) return endRun();
+  run.q = run.w.fixed ? run.w.fixed[run.idx] : makeQ(pick(run.w.types));
+  run.answered = false; run.sel = null; run.revealed = false;
+  render();
+}
+function hud() {
+  const w = run.w, free = w.n === Infinity;
+  return `<div id="hudwrap" class="stack" style="gap:6px"><div class="top" style="align-items:center"><div class="row"><button onclick="home()">← Menu</button><b style="font-family:var(--display);font-size:18px">${w.name}</b></div>
+  <div class="hud">${run.deadline ? `<span>Temps <span id="timer"></span></span>` : ""}<span>Juste : ${run.score}${free ? " / " + (run.idx + (run.answered ? 1 : 0)) : ""}</span>
+  <span class="combo">${run.combo >= 2 ? "Série ×" + run.combo : ""}</span><span class="muted">+${run.xp} XP</span></div></div>
+  ${free ? "" : `<div class="dots" aria-label="Progression">${Array.from({ length: w.n }, (_, i) => `<i class="${run.results[i] === true ? "ok" : run.results[i] === false ? "ko" : i === run.idx ? "cur" : ""}"></i>`).join("")}</div>`}</div>`;
+}
+function render() {
+  const q = run.q; let body = "";
+  if (q.kind === "choice") body = `<div class="opts">${q.options.map((o, i) => `<button class="opt" data-i="${i}" onclick="choose(${i})"><kbd>${i + 1}</kbd><span>${o}</span></button>`).join("")}</div>`;
+  else if (q.kind === "input") body = `<div class="row" style="margin-top:14px"><input type="text" id="ans" autocomplete="off" spellcheck="false" placeholder="Ta réponse" aria-label="Ta réponse"></div>`;
+  else if (q.kind === "tokens") body = `<div class="toks">${q.tokens.map((t, i) => `<span class="tok" data-i="${i}" ${t.k === "c" ? `tabindex="0" role="button"` : ""} onclick="selTok(${i})">${esc(t.v)}</span>`).join("")}</div>`;
+  else if (q.kind === "table") {
+    run.cells = rows(q.vs).map(() => null);
+    body = `<p style="margin-top:8px">${F(q.f)}</p><div class="scroll"><table class="tt"><tr>${q.vs.map(v => `<th>${vname(v)}</th>`).join("")}<th>${esc(show(q.f))}</th></tr>
+    ${rows(q.vs).map((e, r) => `<tr>${q.vs.map(v => `<td>${b01(e[v])}</td>`).join("")}<td class="cell" tabindex="0" data-r="${r}" onclick="cell(${r})">?</td></tr>`).join("")}</table></div>`;
+  }
+  const ctx = q.context != null ? q.context : run.w.context;
+  const btn = q.kind === "reveal" ? "Voir la correction" : "Valider";
+  app.innerHTML = `<div class="stack">${hud()}<section class="card">${ctx ? `<div class="ctx">${ctx}</div>` : ""}<div class="label">${q.label || TYPES[q.type] || ""}</div>
+    <div style="margin-top:6px">${q.prompt}</div>${body}
+    <div class="row" style="margin-top:16px"><button class="primary" id="go" onclick="validate()">${btn}</button></div>
+    <div id="fb"></div></section></div>`;
+  if (q.kind === "input") $("#ans").focus();
+  tick();
+}
+function choose(i) { if (run.answered) return; run.sel = i; document.querySelectorAll(".opt").forEach(b => b.classList.toggle("sel", +b.dataset.i === i)); if (run.q.options.length <= 2) validate(); }
+function selTok(i) { if (run.answered || run.q.tokens[i].k !== "c") return; run.sel = i; document.querySelectorAll(".tok").forEach(b => b.classList.toggle("sel", +b.dataset.i === i)); }
+function cell(r) { if (run.answered) return; const c = run.cells[r]; run.cells[r] = c === null ? true : !c; document.querySelector(`td[data-r="${r}"]`).textContent = b01(run.cells[r]); }
+function setFb(cls, html) { const fb = $("#fb"); fb.className = "fb " + cls; fb.innerHTML = html; }
+function validate() {
+  if (run.answered) return nextAfter();
+  const q = run.q; let ok = false, explain = q.explain || "";
+  if (q.kind === "reveal") {
+    if (run.revealed) return;
+    run.revealed = true; $("#go").hidden = true;
+    setFb("info", `<div class="verdict">Correction</div><div class="sol">${q.solution}</div><div class="row" style="margin-top:14px"><span>Ta réponse était-elle juste ?</span><button onclick="selfGrade(true)">Oui, j'avais juste</button><button onclick="selfGrade(false)">Non, à revoir</button></div>`);
+    return;
+  }
+  if (q.kind === "choice") {
+    if (run.sel == null) return;
+    ok = run.sel === q.answer;
+    document.querySelectorAll(".opt").forEach(b => { const i = +b.dataset.i; if (i === q.answer) b.classList.add("good"); else if (i === run.sel) b.classList.add("bad"); });
+  } else if (q.kind === "input") {
+    const v = $("#ans").value.trim(); if (!v) return; ok = !!q.check(v); $("#ans").disabled = true;
+  } else if (q.kind === "tokens") {
+    if (run.sel == null) return; ok = run.sel === q.answer;
+    document.querySelectorAll(".tok").forEach(b => { const i = +b.dataset.i; if (q.weights[i] != null) b.innerHTML = esc(q.tokens[i].v) + `<sub>${q.weights[i]}</sub>`; if (i === q.answer) b.classList.add("good"); b.classList.add("done"); });
+  } else if (q.kind === "table") {
+    if (run.cells.some(c => c === null)) { setFb("ko", "Remplis toutes les cases avant de valider."); return; }
+    const rs = rows(q.vs); ok = rs.every((e, r) => ev(q.f, e) === run.cells[r]);
+    rs.forEach((e, r) => document.querySelector(`td[data-r="${r}"]`).classList.add(ev(q.f, e) === run.cells[r] ? "good" : "bad"));
+    const subs = subformulas(q.f).filter(g => g.t !== "v");
+    explain = `Correction avec toutes les sous-formules (méthode du cours) :<div class="scroll"><table class="tt"><tr>${q.vs.map(v => `<th>${vname(v)}</th>`).join("")}${subs.map(g => `<th>${esc(show(g))}</th>`).join("")}</tr>
+      ${rs.map(e => `<tr>${q.vs.map(v => `<td>${b01(e[v])}</td>`).join("")}${subs.map(g => `<td>${b01(ev(g, e))}</td>`).join("")}</tr>`).join("")}</table></div>`;
+  }
+  finish(ok, explain);
+}
+function selfGrade(ok) { if (run.answered) return; $("#go").hidden = false; finish(ok, `<div class="sol">${run.q.solution}</div>`); }
+function finish(ok, explain) {
+  const q = run.q; run.answered = true;
+  if (q.type && TYPES[q.type]) { const st = S.stats[q.type] || (S.stats[q.type] = [0, 0]); st[1]++; if (ok) st[0]++; }
+  if (ok) { run.score++; run.combo++; run.maxCombo = Math.max(run.maxCombo, run.combo); const g = 10 + Math.min(run.combo - 1, 5) * 2; run.xp += g; S.xp += g; }
+  else run.combo = 0;
+  run.results[run.idx] = ok; save();
+  setFb(ok ? "ok" : "ko", `<div class="verdict">${ok ? pick(["Bravo !", "Exact !", "Parfait !", "Bien joué !"]) : "Pas tout à fait…"}</div><div style="margin-top:6px">${explain}</div>`);
+  const go = $("#go"); go.textContent = run.idx + 1 >= run.w.n ? "Voir le résultat" : "Suivant →"; go.focus();
+  const h = $("#hudwrap"); if (h) { h.outerHTML = hud(); tick(); }
+}
+function nextAfter() { run.idx++; nextQ(); window.scrollTo(0, 0); }
+function endRun(timeout = false) {
+  clearInterval(timerId); const w = run.w;
+  if (w.n === Infinity) return home();
+  const n = w.n, k = starsFor(run.score, n), bonus = k * 15; S.xp += bonus;
+  if (w.ex) { const p = run.score / n; if (S.best[w.id] == null || p > S.best[w.id]) S.best[w.id] = p; }
+  else if (S.best[w.id] == null || run.score > S.best[w.id]) S.best[w.id] = run.score;
+  save();
+  const note = w.id === "exam" ? `<p class="big">Note : <b>${run.score}/20</b> · ${run.score >= 16 ? "Très bien" : run.score >= 14 ? "Bien" : run.score >= 12 ? "Assez bien" : run.score >= 10 ? "Passable, continue" : "À retravailler"}</p>` : "";
+  const wi = WORLDS.indexOf(w);
+  const again = w.ex ? `startExo('${w.ex}')` : `startWorld(${wi})`;
+  const ficheIdx = w.ex ? { numeration: 1, formule: 3, simplif: 4, normal: 5, syllog: 0, predicats: 6, redaction: 4 }[w.ex] : Math.min(FICHES.length - 1, Math.max(0, wi));
+  app.innerHTML = `<div class="stack">${header()}<section class="card stack" style="align-items:center;text-align:center">
+    <div class="label">${w.name}${timeout ? " · temps écoulé" : ""}</div>
+    <div class="result-num">${run.score}<span class="muted" style="font-size:28px"> / ${n}</span></div>
+    <div class="stars" style="font-size:30px">${starStr(k)}</div>${note}
+    <p class="muted">+${run.xp + bonus} XP, dont ${bonus} de bonus étoiles · meilleure série : ${run.maxCombo}</p>
+    <div class="row" style="justify-content:center"><button class="primary" onclick="${again}">${w.ex ? "Nouvel énoncé" : "Rejouer"}</button><button onclick="home()">Menu</button><button onclick="fiches(${ficheIdx})">Revoir la fiche</button></div></section></div>`;
+}
+function training() {
+  clearInterval(timerId);
+  app.innerHTML = `<div class="stack">${header()}<div class="row"><button onclick="home()">← Menu</button><h2>Entraînement libre</h2></div>
+  <p class="muted">Des questions sans fin sur un seul type d'exercice. Les exercices générés changent à chaque fois.</p>
+  <div class="grid">${Object.entries(TYPES).map(([k, v]) => { const s = S.stats[k]; return tile("∞", v, s ? `Réussite : ${Math.round(100 * s[0] / s[1])} %` : "Jamais essayé", s ? `${s[1]} questions` : "", `startWorld(0,'${k}')`); }).join("")}</div></div>`;
+}
+function stats(confirmReset) {
+  const ent = Object.entries(TYPES).map(([k, v]) => [v, S.stats[k] || [0, 0], k]);
+  app.innerHTML = `<div class="stack">${header()}<div class="row"><button onclick="home()">← Menu</button><h2>Statistiques</h2></div>
+  <section class="card"><p class="muted">Clique sur une ligne pour t'entraîner dessus. Sous 60 % de réussite, la ligne passe en rouge.</p>
+  ${ent.map(([v, s, k]) => { const p = s[1] ? Math.round(100 * s[0] / s[1]) : null, weak = p != null && p < 60; return `<div style="margin:12px 0;cursor:pointer" onclick="startWorld(0,'${k}')">
+    <div class="row" style="justify-content:space-between"><span>${v}</span><span class="muted" style="${weak ? "color:var(--ko)" : ""}">${p == null ? "—" : p + " % · " + s[0] + "/" + s[1]}</span></div>
+    <div class="bar"><i style="width:${p || 0}%;${weak ? "background:var(--ko)" : ""}"></i></div></div>`; }).join("")}
+  <div class="row" style="margin-top:16px">${confirmReset ? `<span>Tout effacer (XP, records, stats) ?</span><button class="primary" onclick="S={xp:0,best:{},stats:{},theme:S.theme};save();home()">Oui, effacer</button><button onclick="stats()">Annuler</button>` : `<button onclick="stats(true)">Remettre la progression à zéro</button>`}</div></section></div>`;
+}
+
+/* ================= FICHES ================= */
+const FICHES = [
+["Introduction", `
+<p>La logique vérifie qu'une <b>conclusion</b> est nécessairement vraie dès que les <b>hypothèses</b> le sont. Elle juge la <b>validité</b> du raisonnement, pas la vérité des phrases.</p>
+<h3>Syllogismes (Aristote)</h3>
+<p>Deux prémisses et une conclusion. Chaque phrase relie deux ensembles :</p>
+<ul class="list"><li><b>Inclusion</b> A ⊆ B : « Toutes les vaches sont herbivores »</li><li><b>Disjoints</b> A ∩ B = ∅ : « Aucun homme n'est parfait »</li>
+<li><b>Intersection non vide</b> : « Certains hommes vivent vieux »</li><li><b>Non-inclusion</b> A ⊄ B : « Toutes les vaches ne sont pas laitières »</li></ul>
+<p>Méthode : diagramme d'Euler. Pour prouver qu'un syllogisme est <b>non valide</b>, il suffit d'<b>un</b> dessin compatible avec les prémisses où la conclusion est fausse.</p>
+<h3>Une logique, c'est</h3><ul class="list"><li><b>Syntaxe</b> : comment écrire les formules</li><li><b>Sémantique</b> : la notion de vérité</li><li><b>Système de preuves</b> : Modus Ponens (A et A ⇒ B donnent B) et axiomes</li></ul>
+<p><b>Cohérence</b> : on ne démontre que du vrai. <b>Complétude</b> : tout le vrai est démontrable. <b>Gödel (1931)</b> : toute logique assez large pour l'arithmétique est incomplète.</p>
+<p>La logique propositionnelle travaille sur les booléens : elle est cohérente et complète, et ses calculs sont automatisables. La logique des prédicats est plus expressive mais incomplète.</p>`],
+["Numération", `
+<p><span class="code">(a<sub>n−1</sub>…a<sub>0</sub>)<sub>B</sub> = Σ a<sub>k</sub>·B<sup>k</sup></span>, chiffres de 0 à B−1 (puis A=10, B=11 … F=15 en hexadécimal).</p>
+<h3>Base B → base 10</h3><p>On applique la définition. <span class="code">(101101)₂ = 1+4+8+32 = 45</span> ; <span class="code">(A2F)₁₆ = 10·256 + 2·16 + 15 = 2607</span>.</p>
+<h3>Base 10 → base B</h3><p><b>Divisions successives par B</b> : les restes donnent les chiffres de droite à gauche (on lit de bas en haut). <span class="code">57 = (111001)₂</span>.</p>
+<p>Pour la base 2 : décomposer en puissances de 2. <span class="code">179 = 128+32+16+2+1 = (10110011)₂</span>.</p>
+<h3>Binaire ↔ hexadécimal</h3><p>Regrouper par <b>4 bits en partant de la droite</b>. <span class="code">(110 1100 1010 0111)₂ = (6CA7)₁₆</span>.</p>
+<h3>Nombres à virgule</h3><p>Après la virgule : B<sup>−1</sup>, B<sup>−2</sup>… <span class="code">(1101,101)₂ = 13 + 0,5 + 0,125 = 13,625</span>.</p>
+<p>Base 10 → base 2 : partie entière par divisions, partie fractionnaire par <b>multiplications successives par 2</b> (on garde la partie entière à chaque étape). <span class="code">0,8125 = (0,1101)₂</span>.</p>
+<p>Un décimal peut avoir une écriture <b>infinie</b> en base 2 : <span class="code">0,1 = (0,000110011…)₂</span>. D'où <span class="code">0.1 + 0.2 == 0.3 → False</span> en Python. Python : <span class="code">0b…</span>, <span class="code">0x…</span>, <span class="code">bin()</span>, <span class="code">hex()</span>.</p>`],
+["Syntaxe", `
+<p>Alphabet : variables X₁, X₂…, connecteurs ¬ ∧ ∨ ⇒, parenthèses.</p>
+<h3>Formules (plus petit ensemble tel que)</h3><p>X<sub>i</sub> ; si P et Q sont des formules : <span class="code">(¬P)</span>, <span class="code">(P ∧ Q)</span>, <span class="code">(P ∨ Q)</span>, <span class="code">(P ⇒ Q)</span>. Grammaire : A → X<sub>i</sub> | (¬A) | (A∧A) | (A∨A) | (A⇒A).</p>
+<h3>Théorème de lecture unique</h3><p>Toute formule a une <b>unique</b> décomposition : X<sub>i</sub>, (¬P) ou (P c Q).</p>
+<h3>Poids des parenthèses</h3><p>1re parenthèse : 1, puis +1 pour « ( » et −1 pour « ) ». La dernière est la seule de poids 0. Le <b>connecteur principal</b> est juste après la <b>première parenthèse fermante de poids 1</b>.</p>
+<p>Exemple : <span class="code">(₁X₁ ∨ (₂X₂ ⇒ (₃¬X₃)₂)₁)₀</span></p>
+<h3>Hauteur</h3><p>h(X<sub>i</sub>) = 0 ; h(¬P) = h(P)+1 ; h(P c Q) = max(h(P), h(Q))+1. Ex : h((X₁ ∨ X₂) ∧ ¬X₂) = 2.</p>
+<p>Arbre : feuilles = variables, nœuds = connecteurs. Le nombre de parenthèses est pair ; le nombre de parenthèses imbriquées est égal à la hauteur.</p>`],
+["Sémantique", `
+<div class="scroll"><table class="tt"><tr><th>X</th><th>Y</th><th>¬X</th><th>X∧Y</th><th>X∨Y</th><th>X⇒Y</th></tr>
+<tr><td>1</td><td>1</td><td>0</td><td>1</td><td>1</td><td>1</td></tr><tr><td>1</td><td>0</td><td>0</td><td>0</td><td>1</td><td><b>0</b></td></tr>
+<tr><td>0</td><td>1</td><td>1</td><td>0</td><td>1</td><td>1</td></tr><tr><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>1</td></tr></table></div>
+<p style="margin-top:10px"><b>Affectation</b> ν : variables → {0, 1}. On évalue de l'intérieur vers l'extérieur.</p>
+<h3>Table de vérité</h3><p>2<sup>p</sup> lignes pour p variables. Ordre conseillé : X₁ = 1 puis X₁ = 0, chaque cas coupé selon X₂, etc. On ajoute une colonne par sous-formule.</p>
+<h3>Définitions</h3><ul class="list"><li>ν <b>satisfait</b> P si eval<sub>ν</sub>(P) = 1</li><li>P <b>satisfiable</b> : ∃ν qui satisfait P (au moins une ligne à 1)</li>
+<li>P <b>tautologie</b> : ∀ν, eval = 1 (toutes les lignes à 1)</li><li>P tautologie ⇔ ¬P non satisfiable</li>
+<li>P ≡ Q : même évaluation pour toute ν ⇔ (P⇒Q)∧(Q⇒P) tautologie. <b>⇔</b> est un connecteur, <b>≡</b> n'en est pas un.</li></ul>
+<h3>Simplifications partielles</h3><p>On fixe une variable à 1 puis à 0 et on simplifie avec les constantes : 0 ⇒ P ≡ 1, 1 ⇒ P ≡ P, P ∧ 0 ≡ 0, P ∨ 1 ≡ 1…</p>`],
+["Équivalences", `
+<ul class="list">
+<li><b>Implication</b> : P ⇒ Q ≡ ¬P ∨ Q</li><li><b>Contraposée</b> : P ⇒ Q ≡ ¬Q ⇒ ¬P</li>
+<li><b>Idempotence</b> : P ∨ P ≡ P, P ∧ P ≡ P</li><li><b>Associativité</b> : P ∧ (Q ∧ R) ≡ (P ∧ Q) ∧ R (idem ∨)</li>
+<li><b>Commutativité</b> : P ∧ Q ≡ Q ∧ P (idem ∨)</li>
+<li><b>Distributivité</b> : P ∧ (Q ∨ R) ≡ (P∧Q) ∨ (P∧R) ; P ∨ (Q ∧ R) ≡ (P∨Q) ∧ (P∨R)</li>
+<li><b>Morgan</b> : ¬(P ∧ Q) ≡ ¬P ∨ ¬Q ; ¬(P ∨ Q) ≡ ¬P ∧ ¬Q</li>
+<li><b>Absorption</b> : P ∧ (P ∨ Q) ≡ P ; P ∨ (P ∧ Q) ≡ P</li><li>¬¬P ≡ P ; P ⇒ P est une tautologie</li></ul>
+<h3>Avec une tautologie V (≡ 1)</h3><p>P ∧ V ≡ P ; P ∨ V tautologie ; P ⇒ V tautologie ; V ⇒ P ≡ P.</p>
+<h3>Avec une formule non satisfiable F (≡ 0)</h3><p>P ∧ F non satisfiable ; P ∨ F ≡ P ; P ⇒ F ≡ ¬P ; F ⇒ P tautologie.</p>
+<h3>Substitution</h3><p>Une instance d'une tautologie est une tautologie ; on peut remplacer une sous-formule par une formule équivalente.</p>
+<p>Exemple : (X₁ ⇒ X₂) ⇒ X₁ ≡ (¬(¬X₁ ∨ X₂)) ∨ X₁ ≡ (X₁ ∧ ¬X₂) ∨ X₁ ≡ X₁.</p>`],
+["Formes normales", `
+<ul class="list"><li><b>Littéral</b> : X<sub>i</sub> ou ¬X<sub>i</sub></li><li><b>Clause</b> : disjonction (∨) de littéraux</li>
+<li><b>FNC</b> : conjonction (∧) de clauses. Ex : (X₁ ∨ ¬X₂) ∧ (¬X₁ ∨ X₃) ∧ X₄</li><li><b>FND</b> : disjonction (∨) de conjonctions de littéraux. Ex : (X₁ ∧ ¬X₂) ∨ (¬X₁ ∧ X₂)</li></ul>
+<p>Une seule clause, ou une seule conjonction de littéraux, est à la fois FNC et FND.</p>
+<h3>Mettre en forme normale</h3><ol class="list"><li>Supprimer les ⇒ : P ⇒ Q ≡ ¬P ∨ Q</li><li>Descendre les ¬ jusqu'aux variables (Morgan, ¬¬P ≡ P)</li><li>Distribuer ∧ sur ∨ (ou l'inverse)</li></ol>
+<p>Ex : ¬(X₁ ⇒ (X₂ ∧ ¬X₃)) ≡ X₁ ∧ (¬X₂ ∨ X₃) [FNC] ≡ (X₁ ∧ ¬X₂) ∨ (X₁ ∧ X₃) [FND].</p>
+<h3>FND depuis une table de vérité</h3><p>Pour chaque ligne à <b>1</b> : conjonction des littéraux (X<sub>i</sub> si 1, ¬X<sub>i</sub> si 0). Puis disjonction de toutes ces conjonctions. Donc toute fonction booléenne s'écrit avec une formule.</p>`],
+["Prédicats", `
+<p>On travaille sur un <b>domaine</b> D (ℕ, ℝ, des étudiants…).</p>
+<ul class="list"><li><b>Constantes</b> (1, π), <b>variables</b> (x, y), <b>fonctions</b> d'arité n : Dⁿ → D (+, carré)</li>
+<li><b>Relations</b> d'arité n : Dⁿ → {V, F} (≤ d'arité 2, positif d'arité 1)</li><li>Quantificateurs <b>∀</b> et <b>∃</b></li></ul>
+<h3>Construction</h3><p><b>Terme</b> : constante, variable ou f(t₁,…,tₙ), qui donne un élément de D (ex : carre(1+n)∗3).<br>
+<b>Formule atomique</b> : r(t₁,…,tₙ) (ex : max(1,n) = m, positif(x)).<br><b>Formule</b> : formules atomiques combinées avec ¬ ∧ ∨ ⇒, ∃x, ∀x.</p>
+<h3>Évaluation</h3><p><b>Valuation</b> v : variables → D. Variable <b>libre</b> : non quantifiée (il faut lui donner une valeur). Variable <b>liée</b> : sous un ∀ ou un ∃.<br>
+∀x F est vraie si F est vraie pour toute valeur de x ; ∃x F est vraie s'il existe une valeur qui marche.</p>
+<h3>Négation</h3><p><span class="code">¬(∀x P) ≡ ∃x ¬P</span> &nbsp; <span class="code">¬(∃x P) ≡ ∀x ¬P</span></p>
+<p>Ex : ¬∀x∀y((x&lt;y) ⇒ ∃z((x&lt;z)∧(z&lt;y))) ≡ ∃x∃y((x&lt;y) ∧ ∀z((x≥z) ∨ (z≥y))).</p>
+<h3>Quantificateurs avec condition</h3><p><span class="code">∀x : r(x) P</span> = ∀x (r(x) <b>⇒</b> P) &nbsp; <span class="code">∃x : r(x) P</span> = ∃x (r(x) <b>∧</b> P). Dans la négation, on garde la condition.</p>
+<p>« Tout étudiant appartient à un groupe » : ∀e ∈ E ∃g ∈ G appartient(e, g). L'ordre des quantificateurs compte.</p>`]
+];
+function fiches(i = 0) {
+  clearInterval(timerId); run = null;
+  app.innerHTML = `<div class="stack">${header()}<div class="row"><button onclick="home()">← Menu</button><h2>Fiches de cours</h2></div>
+  <div class="tabs">${FICHES.map((f, k) => `<button class="${k === i ? "on" : ""}" onclick="fiches(${k})">${f[0]}</button>`).join("")}</div>
+  <section class="card fiche"><h2 style="margin-bottom:10px">${FICHES[i][0]}</h2>${FICHES[i][1]}</section>
+  <div class="row"><button class="primary" onclick="startWorld(${i})">S'entraîner sur ce chapitre →</button></div></div>`;
+  window.scrollTo(0, 0);
+}
+
+document.addEventListener("keydown", e => {
+  const t = e.target;
+  if ((e.key === "Enter" || e.key === " ") && t && t.classList) {
+    if (t.classList.contains("tok")) { e.preventDefault(); return selTok(+t.dataset.i); }
+    if (t.classList.contains("cell")) { e.preventDefault(); return cell(+t.dataset.r); }
+  }
+  if (!run || !run.q) return;
+  if (e.key === "Enter" && !(t && t.tagName === "BUTTON" && t.id !== "go")) { e.preventDefault(); validate(); }
+  else if (run.q.kind === "choice" && !run.answered && /^[1-4]$/.test(e.key)) { const i = +e.key - 1; if (i < run.q.options.length) choose(i); }
+});
+
+/* Auto-test des générateurs (console : __selftest()) */
+window.__selftest = function (n = 200) {
+  const errs = [];
+  const checkQ = (t, q) => {
+    if (q.kind === "choice" && (q.answer < 0 || new Set(q.options).size !== q.options.length || q.options.length < 2)) errs.push([t, "options", q.prompt, q.options]);
+    if (q.kind === "tokens" && q.tokens[q.answer].k !== "c") errs.push([t, "tok"]);
+    if (q.kind === "input" && q.answerText != null && !q.check(q.answerText)) errs.push([t, "input", q.prompt]);
+  };
+  for (const t of Object.keys(TYPES)) for (let k = 0; k < n; k++) { try { checkQ(t, GEN[t]()); } catch (e) { errs.push([t, String(e)]); } }
+  for (const k of Object.keys(EXOS)) for (let j = 0; j < n / 4; j++) { try { EXOS[k].make().steps.forEach(q => checkQ(k, q)); } catch (e) { errs.push([k, String(e)]); } }
+  return errs.length ? errs.slice(0, 8) : "OK";
+};
+home();
+</script>
+</body>
+</html>
