@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Jeu de révision du cours de logique L1 : chapitres, exercices type TD corrigés, fiches de cours et examen blanc.">
-<title>Logique Quest</title>
+<title>Entraînement Logique</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -697,7 +697,7 @@ let run = null, timerId = null;
 const app = $("#app");
 function header() {
   const r = rankOf(S.xp); const pct = r.next ? Math.round(100 * (S.xp - r.from) / (r.next[0] - r.from)) : 100;
-  return `<header class="top"><div class="brand"><small>Logique · L1</small><h1>Logique Quest</h1></div>
+  return `<header class="top"><div class="brand"><small>Logique · L1</small><h1>Entraînement Logique</h1></div>
   <div class="xp"><div class="row" style="justify-content:space-between"><b>${r.name}</b><span class="muted">${S.xp} XP</span></div>
   <div class="bar"><i style="width:${pct}%"></i></div><span class="muted" style="font-size:13px">${r.next ? `Rang suivant : ${r.next[1]} (${r.next[0]} XP)` : "Rang maximal atteint"}</span></div></header>`;
 }

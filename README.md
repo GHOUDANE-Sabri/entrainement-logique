@@ -1,4 +1,4 @@
-# Logique Quest
+# Entraînement Logique
 
 Jeu de révision du cours de logique de L1 : numération, logique propositionnelle (syntaxe, sémantique, équivalences, formes normales) et logique des prédicats.
 
