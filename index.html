@@ -682,10 +682,11 @@ const EXOS = {
         return { kind: "reveal", label: x.d === 1 ? "Question 1 : diode d1" : `Question 2 : diode d${x.d}`,
           prompt: `Donne la <b>table de vérité</b> de <b>d${x.d}</b> (1 = Vrai, allumée ; 0 = Faux, éteinte), puis une <b>formule</b> en X₀, X₁, X₂.`,
           hints: x.h,
-          solution: `<p>d${x.d} est allumée pour n = ${x.on.join(", ")}.</p>${tab(x.on)}
+          solution: `<p>d${x.d} est allumée pour n = ${x.on.join(", ")}.</p>${tab(x.on)}<p>${x.why}</p>
+<p><b>Pour extraire la formule pas à pas :</b></p>
 <p><b>Étape 1 : lignes à 1.</b> ${x.on.map(n => `n = ${n} = (${bitsOf(n).join("")})₂`).join(" ; ")}.</p>
 <p><b>Étape 2 : FND.</b> ${fnd}</p>
-<p><b>Étape 3 : simplification.</b> ${neg ? NEG[x.d] : SIMP[x.d]}</p>
+<p><b>Étape 3 : simplification.</b> ${(neg ? NEG[x.d] : SIMP[x.d]).replace(/ ?Donc d\d = .*$/, "")}</p>
 <p>Donc <span class="f">d${x.d} = ${x.f}</span></p>` };
       })];
     steps.push({ kind: "reveal", label: "Vérification", prompt: "Vérifie tes formules sur l'exemple <span class='f'>n = 3</span>, soit X₂ = 0, X₁ = 1, X₀ = 1. Quelles diodes doivent être allumées ?",
