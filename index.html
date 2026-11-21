@@ -657,10 +657,37 @@ const EXOS = {
       { d: 7, on: [4, 5, 6, 7], f: "X₂", why: "d7 (en bas à droite) est allumée pour n = 4 à 7, comme d1 : d7 = X₂.",
         h: ["d7 est en bas à droite. Pour quels n est-il allumé ?", "Même raisonnement que pour d1 : quel bit vaut 1 pour n ≥ 4 ?"] },
     ];
-    const steps = D.map(x => ({ kind: "reveal", label: x.d === 1 ? "Question 1 : diode d1" : `Question 2 : diode d${x.d}`,
-      prompt: `Donne la <b>table de vérité</b> de <b>d${x.d}</b> (1 = Vrai, allumée ; 0 = Faux, éteinte), puis une <b>formule</b> en X₀, X₁, X₂.`,
-      hints: x.h,
-      solution: `<p>d${x.d} est allumée pour n = ${x.on.join(", ")}.</p>${tab(x.on)}<p>${x.why}</p><p>Donc <span class="f">d${x.d} = ${x.f}</span></p>` }));
+    const minterm = n => { const [a, b, c] = bitsOf(n); return `(${a ? "X₂" : "¬X₂"} ∧ ${b ? "X₁" : "¬X₁"} ∧ ${c ? "X₀" : "¬X₀"})`; };
+    const SIMP = {
+      1: "Dans les 4 conjonctions, X₂ revient toujours : on le met en facteur. Il reste ¬X₁∧¬X₀ ∨ ¬X₁∧X₀ ∨ X₁∧¬X₀ ∨ X₁∧X₀, qui vaut 1 pour toutes les combinaisons de X₁ et X₀. Donc d1 = X₂.",
+      2: "Dans les 2 conjonctions, X₂ ∧ X₁ revient : on le met en facteur. Il reste ¬X₀ ∨ X₀, qui vaut toujours 1. Donc d2 = X₂ ∧ X₁.",
+      4: "X₀ revient dans les 4 conjonctions : on le met en facteur. Il reste toutes les combinaisons de X₂ et X₁, qui valent toujours 1. Donc d4 = X₀.",
+      6: "Dans les 2 conjonctions, X₂ ∧ X₁ revient : on le met en facteur. Il reste ¬X₀ ∨ X₀, qui vaut toujours 1. Donc d6 = X₂ ∧ X₁.",
+      7: "Dans les 4 conjonctions, X₂ revient toujours : on le met en facteur. Il reste ¬X₁∧¬X₀ ∨ ¬X₁∧X₀ ∨ X₁∧¬X₀ ∨ X₁∧X₀, qui vaut 1. Donc d7 = X₂.",
+    };
+    const NEG = {
+      3: "Les lignes éteintes sont n = 0 et n = 1. FND de ¬d3 : (¬X₂∧¬X₁∧¬X₀) ∨ (¬X₂∧¬X₁∧X₀) = ¬X₂∧¬X₁∧(¬X₀ ∨ X₀) = ¬X₂∧¬X₁. Par De Morgan, d3 = ¬(¬X₂∧¬X₁) = X₂ ∨ X₁.",
+      5: "Les lignes éteintes sont n = 0 et n = 1. FND de ¬d5 : (¬X₂∧¬X₁∧¬X₀) ∨ (¬X₂∧¬X₁∧X₀) = ¬X₂∧¬X₁∧(¬X₀ ∨ X₀) = ¬X₂∧¬X₁. Par De Morgan, d5 = ¬(¬X₂∧¬X₁) = X₂ ∨ X₁.",
+    };
+    const steps = [{ kind: "reveal", label: "Méthode", prompt: "Comment passer d'une table de vérité à une formule ?",
+      hints: ["Une formule qui vaut 1 exactement sur certaines lignes se construit ligne par ligne : une conjonction par ligne à 1.", "Ensuite on simplifie : un littéral qui revient partout se met en facteur."],
+      solution: `<p><b>Étape 1 : lire les lignes à 1.</b> Pour chaque ligne où la diode est allumée, on lit les bits X₂ X₁ X₀.</p>
+<p><b>Étape 2 : une conjonction par ligne.</b> Un bit à 1 donne le littéral positif (X), un bit à 0 donne le littéral négatif (¬X). Exemple : n = 6 = (110)₂ donne X₂ ∧ X₁ ∧ ¬X₀.</p>
+<p><b>Étape 3 : la disjonction.</b> On relie les conjonctions par ∨. On obtient une <b>FND</b> (forme normale disjonctive).</p>
+<p><b>Étape 4 : simplifier.</b> Un littéral qui revient dans toutes les conjonctions se met en facteur. Si ce qui reste couvre toutes les combinaisons, il vaut 1 et disparaît.</p>
+<p><b>Astuce :</b> si la diode est allumée sur beaucoup de lignes mais éteinte sur peu, il est plus court de travailler sur les lignes éteintes : on trouve ¬d, puis on prend la négation avec De Morgan.</p>` },
+      ...D.map(x => {
+        const neg = !!NEG[x.d], offs = [0, 1, 2, 3, 4, 5, 6, 7].filter(n => !x.on.includes(n));
+        const fnd = neg ? `On travaille sur les lignes à 0 (n = ${offs.join(", ")}) : FND de ¬d${x.d} = ${offs.map(minterm).join(" ∨ ")}.` : `FND de d${x.d} = ${x.on.map(minterm).join(" ∨ ")}.`;
+        return { kind: "reveal", label: x.d === 1 ? "Question 1 : diode d1" : `Question 2 : diode d${x.d}`,
+          prompt: `Donne la <b>table de vérité</b> de <b>d${x.d}</b> (1 = Vrai, allumée ; 0 = Faux, éteinte), puis une <b>formule</b> en X₀, X₁, X₂.`,
+          hints: x.h,
+          solution: `<p>d${x.d} est allumée pour n = ${x.on.join(", ")}.</p>${tab(x.on)}
+<p><b>Étape 1 : lignes à 1.</b> ${x.on.map(n => `n = ${n} = (${bitsOf(n).join("")})₂`).join(" ; ")}.</p>
+<p><b>Étape 2 : FND.</b> ${fnd}</p>
+<p><b>Étape 3 : simplification.</b> ${neg ? NEG[x.d] : SIMP[x.d]}</p>
+<p>Donc <span class="f">d${x.d} = ${x.f}</span></p>` };
+      })];
     steps.push({ kind: "reveal", label: "Vérification", prompt: "Vérifie tes formules sur l'exemple <span class='f'>n = 3</span>, soit X₂ = 0, X₁ = 1, X₀ = 1. Quelles diodes doivent être allumées ?",
       hints: ["Calcule chaque formule avec X₂ = 0, X₁ = 1, X₀ = 1."],
       solution: "d1 = X₂ = 0 ; d2 = X₂ ∧ X₁ = 0 ; d3 = X₂ ∨ X₁ = 1 ; d4 = X₀ = 1 ; d5 = X₂ ∨ X₁ = 1 ; d6 = X₂ ∧ X₁ = 0 ; d7 = X₂ = 0.<br>Allumées : d3, d4, d5, comme dans l'énoncé." });
