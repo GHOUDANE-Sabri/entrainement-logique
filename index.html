@@ -1,116 +1,116 @@
 <!doctype html>
-<html lang="fr">
-<head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Jeu de révision du cours de logique L1 : chapitres, exercices type TD corrigés, fiches de cours et examen blanc.">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Entraînement Logique</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-/* Mise en page : une copie quadrillée d'étudiant — encre bleue pour le jeu, stylo rouge pour les corrections */
+/* Refonte : le cahier d'exercices. Papier crème, lignes bleues tous les 28 px (le texte s'aligne sur elles), marge rouge, stylo rouge pour les corrections. */
 :root{
-  --paper:#fbfcff; --grid:#e3e9f7; --card:#ffffff; --ink:#17204a; --muted:#5b6487; --line:#d7def0;
-  --accent:#2546c8; --accent-ink:#ffffff; --chip:#eaf0ff;
-  --ok:#1b7c4c; --ok-bg:#e2f4ea; --ko:#cf3428; --ko-bg:#fde8e5; --gold:#c98a07; --info-bg:#eef2ff;
-  --display:"Bricolage Grotesque","Avenir Next","Segoe UI",sans-serif;
+  --paper:#faf6ea; --rule:#d3dcef; --margin:#e4a197; --card:#fffdf7; --ink:#1c2a5e; --muted:#5d6789; --line:#c9d3e8;
+  --accent:#2a4bd0; --accent-ink:#ffffff; --chip:#e9effc; --info-bg:#eef3ff;
+  --ok:#1f7a4a; --ok-bg:#e3f3e9; --ko:#c3352b; --ko-bg:#fbe8e4; --gold:#a97a12;
+  --display:"Newsreader",Georgia,"Times New Roman",serif;
   --body:"Atkinson Hyperlegible",-apple-system,"Segoe UI",Roboto,sans-serif;
   --mono:"JetBrains Mono","SF Mono",ui-monospace,Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --paper:#11161e; --grid:#19202b; --card:#19202b; --ink:#e7ecf6; --muted:#9aa4bf; --line:#2b3546;
-    --accent:#86a6ff; --accent-ink:#0f1420; --chip:#232d3d;
-    --ok:#5ad293; --ok-bg:#15301f; --ko:#ff7d70; --ko-bg:#3a1c1a; --gold:#f2c14e; --info-bg:#1d2638; color-scheme:dark;
+    --paper:#141a27; --rule:#1f2a40; --margin:#6e3a37; --card:#1a2234; --ink:#e6ebf8; --muted:#9aa5c2; --line:#2c3850;
+    --accent:#8fa8ff; --accent-ink:#101626; --chip:#1e2842; --info-bg:#1b2539;
+    --ok:#62d69a; --ok-bg:#15301f; --ko:#ff8a7e; --ko-bg:#3a1f1d; --gold:#e8b84a; color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --paper:#11161e; --grid:#19202b; --card:#19202b; --ink:#e7ecf6; --muted:#9aa4bf; --line:#2b3546;
-  --accent:#86a6ff; --accent-ink:#0f1420; --chip:#232d3d;
-  --ok:#5ad293; --ok-bg:#15301f; --ko:#ff7d70; --ko-bg:#3a1c1a; --gold:#f2c14e; --info-bg:#1d2638; color-scheme:dark;
+  --paper:#141a27; --rule:#1f2a40; --margin:#6e3a37; --card:#1a2234; --ink:#e6ebf8; --muted:#9aa5c2; --line:#2c3850;
+  --accent:#8fa8ff; --accent-ink:#101626; --chip:#1e2842; --info-bg:#1b2539;
+  --ok:#62d69a; --ok-bg:#15301f; --ko:#ff8a7e; --ko-bg:#3a1f1d; --gold:#e8b84a; color-scheme:dark;
 }
 *{box-sizing:border-box}
-body{margin:0;background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;color:var(--ink);font:17px/1.55 var(--body)}
-.wrap{max-width:920px;margin:0 auto;padding-block:22px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body{margin:0;background-color:var(--paper);background-image:repeating-linear-gradient(to bottom,transparent 0 27px,var(--rule) 27px 28px);background-attachment:local;color:var(--ink);font:17px/28px var(--body)}
+.wrap{max-width:920px;margin:0 auto;padding:28px 22px 80px 44px;border-left:2px solid var(--margin);padding-left:max(44px,env(safe-area-inset-left,0px));padding-right:max(22px,env(safe-area-inset-right,0px))}
 h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
-h1{font-size:clamp(28px,6vw,40px);font-weight:800;letter-spacing:-.02em}
-h2{font-size:24px;font-weight:700}
-h3{font-size:18px;margin:18px 0 6px}
+h1{font-size:clamp(32px,6vw,46px);line-height:1.15;font-weight:600;letter-spacing:-.01em}
+h2{font-size:26px;line-height:28px;font-weight:600}
+h3{font-size:19px;line-height:28px;font-weight:600;margin:14px 0 0}
 p{margin:0}
 .stack{display:flex;flex-direction:column;gap:14px}
-button{font:inherit;cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:9px 15px;background:var(--card);color:var(--ink)}
-button:hover{border-color:var(--accent)}
+button{font:inherit;cursor:pointer;border:1.5px solid var(--ink);border-radius:6px;padding:6px 14px;background:transparent;color:var(--ink)}
+button:hover{background:var(--chip)}
 button:focus-visible,input:focus-visible,.tok:focus-visible,td.cell:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.hint{margin:8px 0;border:0;border-left:3px solid var(--line);padding:2px 0 2px 12px;background:transparent}
+.hint summary{cursor:pointer;font-weight:600;color:var(--accent)}
+.hint>div{margin-top:4px}
 .top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
-.brand small{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.xp{min-width:min(260px,100%);display:flex;flex-direction:column;gap:4px;font-size:14px}
-.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.brand small{display:block;font-family:var(--mono);font-size:13px;color:var(--muted)}
+.xp{min-width:min(260px,100%);display:flex;flex-direction:column;gap:4px;font-size:15px}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
 .bar>i{display:block;height:100%;background:var(--accent);transition:width .4s}
 .muted{color:var(--muted)}
 .nav{display:flex;gap:8px;flex-wrap:wrap}
-.label{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
-.tile{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;text-align:left;display:grid;grid-template-columns:auto 1fr;column-gap:12px;row-gap:2px;align-items:start}
-.tile .glyph{grid-row:span 3;width:52px;height:52px;border-radius:8px;background:var(--chip);color:var(--accent);display:grid;place-items:center;font-family:var(--mono);font-weight:600;font-size:15px}
-.tile b{font-family:var(--display);font-size:17px;line-height:1.25}
-.tile .sub{font-size:14px;color:var(--muted)}
-.tile .meta{font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:center}
-.stars{color:var(--gold);letter-spacing:1px}
-.section-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:10px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px;min-width:0}
-.ctx{background:var(--info-bg);border-radius:8px;padding:12px 14px;margin-bottom:14px;overflow-x:auto}
+.label{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.grid{display:flex;flex-direction:column}
+.tile{width:100%;background:transparent;border:0;border-bottom:1px solid var(--rule);border-radius:0;padding:14px 6px;text-align:left;display:grid;grid-template-columns:44px 1fr;column-gap:14px;row-gap:0;align-items:start}
+.tile:hover{background:var(--chip)}
+.tile .glyph{grid-row:span 3;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--accent);background:transparent;color:var(--accent);display:grid;place-items:center;font-family:var(--mono);font-weight:600;font-size:14px}
+.tile b{font-family:var(--display);font-size:20px;font-weight:600;line-height:28px}
+.tile .sub{font-size:15px;color:var(--muted);line-height:24px}
+.tile .meta{font-size:14px;color:var(--muted);display:flex;gap:8px;align-items:center}
+.stars{color:var(--gold);letter-spacing:2px}
+.section-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:28px;border-bottom:2px solid var(--ink);padding-bottom:4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:24px 26px;min-width:0;box-shadow:0 1px 0 var(--line)}
+.ctx{background:var(--info-bg);border-left:3px solid var(--accent);border-radius:0;padding:12px 14px;margin-bottom:14px;overflow-x:auto}
 .opt span{min-width:0;overflow-x:auto}
 .f{font-family:var(--mono);font-size:.95em;white-space:nowrap}
 .fw{font-family:var(--mono);font-size:.95em}
 .big{font-size:1.25em}
 .opts{display:grid;gap:8px;margin-top:14px}
-.opt{text-align:left;background:var(--paper);border:2px solid var(--line);padding:11px 14px;display:flex;gap:10px;align-items:baseline}
-.opt kbd{font-family:var(--mono);font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 5px}
-.opt.sel{border-color:var(--accent)}
+.opt{text-align:left;background:var(--card);border:1px solid var(--line);border-radius:4px;padding:10px 14px;display:flex;gap:10px;align-items:baseline}
+.opt kbd{font-family:var(--mono);font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:3px;padding:0 5px}
+.opt.sel{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
 .opt.good{border-color:var(--ok);background:var(--ok-bg)}
 .opt.bad{border-color:var(--ko);background:var(--ko-bg)}
-input[type=text]{font:inherit;font-family:var(--mono);font-size:20px;padding:10px 12px;border-radius:8px;border:2px solid var(--line);background:var(--paper);color:var(--ink);width:min(340px,100%)}
-.fb{margin-top:16px;padding:14px 16px;border-radius:8px;border-left:4px solid transparent}
+input[type=text]{font:inherit;font-family:var(--mono);font-size:20px;padding:8px 12px;border-radius:4px;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);width:min(340px,100%)}
+.fb{margin-top:16px;padding:12px 16px;border-radius:0;border-left:3px solid transparent}
 .fb.ok{background:var(--ok-bg);border-color:var(--ok)}
 .fb.ko{background:var(--ko-bg);border-color:var(--ko)}
 .fb.info{background:var(--info-bg);border-color:var(--accent)}
-.fb .verdict{font-family:var(--display);font-weight:700;font-size:18px}
-.fb.ko .verdict{color:var(--ko)} .fb.ok .verdict{color:var(--ok)}
-.hud{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-weight:700;font-variant-numeric:tabular-nums}
+.fb .verdict{font-family:var(--display);font-weight:600;font-size:22px;line-height:28px}
+.fb.ko .verdict{color:var(--ko)}
+.fb.ok .verdict{color:var(--ok)}
+.hud{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-weight:600;font-variant-numeric:tabular-nums}
 .dots{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
 .dots i{width:12px;height:12px;border-radius:50%;background:var(--line)}
 .dots i.ok{background:var(--ok)} .dots i.ko{background:var(--ko)} .dots i.cur{box-shadow:0 0 0 2px var(--accent)}
 .scroll{overflow-x:auto;max-width:100%}
 table.tt{border-collapse:collapse;margin-top:12px;font-family:var(--mono);font-variant-numeric:tabular-nums}
-.tt th,.tt td{border:1px solid var(--line);padding:5px 10px;text-align:center;white-space:nowrap}
+.tt th,.tt td{border:1px solid var(--line);padding:4px 10px;text-align:center;white-space:nowrap}
 .tt th{background:var(--chip);font-weight:600}
-.tt td.cell{cursor:pointer;min-width:48px;font-weight:700;background:var(--paper)}
+.tt td.cell{cursor:pointer;min-width:48px;font-weight:600;background:var(--card)}
 .tt td.good{background:var(--ok-bg)} .tt td.bad{background:var(--ko-bg);color:var(--ko)}
 .toks{margin:22px 0 10px;line-height:2.5}
-.tok{display:inline-block;padding:3px 3px;border-radius:6px;font-family:var(--mono);font-size:22px;cursor:pointer;position:relative}
+.tok{display:inline-block;padding:3px;border-radius:4px;font-family:var(--mono);font-size:22px;cursor:pointer;position:relative}
 .tok:hover{background:var(--chip)}
 .tok.sel{background:var(--accent);color:var(--accent-ink)}
 .tok.good{background:var(--ok-bg);color:var(--ink);box-shadow:0 0 0 2px var(--ok)}
 .tok.done.sel:not(.good){background:var(--ko-bg);color:var(--ink);box-shadow:0 0 0 2px var(--ko)}
 .tok sub{font-size:11px;color:var(--muted);position:absolute;bottom:-13px;left:50%;transform:translateX(-50%)}
 .fiche p,.fiche li{max-width:68ch}
-.fiche .code,.code{font-family:var(--mono);background:var(--chip);padding:1px 5px;border-radius:4px;font-size:.92em}
+.fiche .code,.code{font-family:var(--mono);background:var(--chip);padding:1px 5px;border-radius:3px;font-size:.92em}
 .tabs{display:flex;gap:6px;flex-wrap:wrap}
-.tabs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tabs button.on{background:var(--ink);border-color:var(--ink);color:var(--paper)}
 .combo{color:var(--gold)}
 .list{margin:6px 0;padding-left:22px}
-.list li{margin:3px 0}
-.kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:4px;padding:0 5px}
+.list li{margin:0}
+.kbd{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:3px;padding:0 5px}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.sol{border-top:1px dashed var(--line);margin-top:10px;padding-top:10px}
-.result-num{font-family:var(--display);font-size:56px;font-weight:800;line-height:1}
-@media (max-width:520px){.tok{font-size:18px}.card{padding:16px}}
+.sol{border-top:1px dashed var(--line);margin-top:10px;padding-top:10px;color:var(--ink)}
+.result-num{font-family:var(--display);font-size:60px;font-weight:600;line-height:1}
+@media (max-width:520px){.wrap{padding-left:30px}.tok{font-size:18px}.card{padding:18px}.tile{grid-template-columns:36px 1fr;column-gap:10px}.tile .glyph{width:36px;height:36px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
-</head>
-<body>
 <div class="wrap" id="app"></div>
 <script>
 "use strict";
@@ -638,6 +638,42 @@ const EXOS = {
     const ex = pick(PREDEX);
     return { context: ex.c, steps: ex.s.map(([q, g, b, e], i) => choiceQ(q, g, b, e, `Question ${i + 1}`)) };
   } },
+  de: { g: "⚀", title: "Programmation d'un dé", desc: "Exercice 18 : sept diodes, formules d1 à d7, avec aides et correction", make() {
+    const bitsOf = n => [n >> 2 & 1, n >> 1 & 1, n & 1];
+    const tab = on => `<div class="scroll"><table class="tt"><tr><th>n</th><th>X₂</th><th>X₁</th><th>X₀</th><th>Diode</th></tr>${[0, 1, 2, 3, 4, 5, 6, 7].map(n => { const [a, b, c] = bitsOf(n); return `<tr><td>${n}</td><td>${a}</td><td>${b}</td><td>${c}</td><td><b>${on.includes(n) ? 1 : 0}</b></td></tr>`; }).join("")}</table></div>`;
+    const D = [
+      { d: 1, on: [4, 5, 6, 7], f: "X₂", why: "d1 est allumée pour n = 4 à 7, c'est-à-dire exactement quand X₂ = 1. La formule d1 = X₂ convient.",
+        h: ["Repère dans le tableau des faces les valeurs de n pour lesquelles d1 (en haut à gauche) est allumée.", "Compare ces n avec les bits : quel bit vaut 1 pour tous les n ≥ 4 ?"] },
+      { d: 2, on: [6, 7], f: "X₂ ∧ X₁", why: "d2 n'est allumée que pour n = 6 et 7. Les deux écritures binaires 110 et 111 ont X₂ = 1 et X₁ = 1 en commun : il faut les deux bits à 1.",
+        h: ["d2 est au milieu à gauche. Dans quels n apparaît-il ?", "Écris 6 et 7 en binaire : quels bits valent 1 dans les deux ?", "Il faut X₂ = 1 et X₁ = 1 en même temps : c'est une conjonction (ET)."] },
+      { d: 3, on: [2, 3, 4, 5, 6, 7], f: "X₂ ∨ X₁", why: "d3 est allumée pour n = 2 à 7. Les seuls n où elle est éteinte sont 0 et 1, c'est-à-dire X₂ = 0 et X₁ = 0. Donc d3 est allumée dès que X₂ = 1 ou X₁ = 1.",
+        h: ["d3 est en bas à gauche. Dans quels n apparaît-il, et dans quels n est-il éteint ?", "Les n éteints (0 et 1) sont ceux où X₂ = 0 et X₁ = 0.", "Donc d3 s'allume dès que X₂ ou X₁ vaut 1 : c'est une disjonction (OU)."] },
+      { d: 4, on: [1, 3, 5, 7], f: "X₀", why: "d4 (au centre) est allumée pour les n impairs 1, 3, 5, 7 : c'est exactement quand X₀ = 1 (bit de poids faible).",
+        h: ["d4 est au centre. Regarde les n où il est allumé.", "Ce sont les nombres impairs : quel bit vaut 1 pour un nombre impair ?"] },
+      { d: 5, on: [2, 3, 4, 5, 6, 7], f: "X₂ ∨ X₁", why: "d5 (en haut à droite) est allumée exactement aux mêmes n que d3 (2 à 7) : d5 = X₂ ∨ X₁.",
+        h: ["d5 est en haut à droite. Compare la liste de ses n avec celle des autres diodes.", "Quelle diode a exactement les mêmes n allumés ?"] },
+      { d: 6, on: [6, 7], f: "X₂ ∧ X₁", why: "d6 (milieu à droite) n'est allumée que pour n = 6 et 7, comme d2 : d6 = X₂ ∧ X₁.",
+        h: ["d6 est au milieu à droite. Pour quels n est-il allumé ?", "Même raisonnement que pour d2 : il faut X₂ = 1 et X₁ = 1."] },
+      { d: 7, on: [4, 5, 6, 7], f: "X₂", why: "d7 (en bas à droite) est allumée pour n = 4 à 7, comme d1 : d7 = X₂.",
+        h: ["d7 est en bas à droite. Pour quels n est-il allumé ?", "Même raisonnement que pour d1 : quel bit vaut 1 pour n ≥ 4 ?"] },
+    ];
+    const steps = D.map(x => ({ kind: "reveal", label: x.d === 1 ? "Question 1 : diode d1" : `Question 2 : diode d${x.d}`,
+      prompt: `Donne la <b>table de vérité</b> de <b>d${x.d}</b> (1 = Vrai, allumée ; 0 = Faux, éteinte), puis une <b>formule</b> en X₀, X₁, X₂.`,
+      hints: x.h,
+      solution: `<p>d${x.d} est allumée pour n = ${x.on.join(", ")}.</p>${tab(x.on)}<p>${x.why}</p><p>Donc <span class="f">d${x.d} = ${x.f}</span></p>` }));
+    steps.push({ kind: "reveal", label: "Vérification", prompt: "Vérifie tes formules sur l'exemple <span class='f'>n = 3</span>, soit X₂ = 0, X₁ = 1, X₀ = 1. Quelles diodes doivent être allumées ?",
+      hints: ["Calcule chaque formule avec X₂ = 0, X₁ = 1, X₀ = 1."],
+      solution: "d1 = X₂ = 0 ; d2 = X₂ ∧ X₁ = 0 ; d3 = X₂ ∨ X₁ = 1 ; d4 = X₀ = 1 ; d5 = X₂ ∨ X₁ = 1 ; d6 = X₂ ∧ X₁ = 0 ; d7 = X₂ = 0.<br>Allumées : d3, d4, d5, comme dans l'énoncé." });
+    const POS = { 1: [0, 0], 5: [2, 0], 2: [0, 1], 4: [1, 1], 6: [2, 1], 3: [0, 2], 7: [2, 2] };
+    const die = (on, names) => `<svg viewBox="0 0 120 120" width="${names ? 240 : 96}" role="img" aria-label="Dé à sept diodes" style="max-width:100%;height:auto;display:block;margin:0 auto">` +
+      `<rect x="3" y="3" width="114" height="114" rx="18" fill="none" stroke="currentColor" stroke-width="3"/>` +
+      Object.entries(POS).map(([d, [x, y]]) => { const cx = 34 + 32 * x, cy = 34 + 32 * y, lit = on.includes(+d);
+        return `<circle cx="${cx}" cy="${cy}" r="9" fill="${lit ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2"/>` +
+          (names ? `<text x="${cx}" y="${cy - 13}" font-size="10" font-weight="700" text-anchor="middle" fill="currentColor">d${d}</text>` : ""); }).join("") + `</svg>`;
+    const FACES = [0, 1, 2, 3, 4, 5, 6, 7].map(n => ({ n, on: D.filter(x => x.on.includes(n)).map(x => x.d) }));
+    const ctx = `<b>Énoncé.</b> Un circuit à sept diodes affiche les faces d'un dé. Disposition : d1, d2, d3 à gauche ; d5, d6, d7 à droite ; d4 au centre.<br>L'entrée n (0 à 7) est écrite sur trois bits X₂ X₁ X₀ (X₀ = poids faible), donc n = 4X₂ + 2X₁ + X₀. Voici le dé (les diodes allumées sont en plein) :<div style="display:flex;justify-content:center;margin:10px 0">${die([], true)}</div>Faces à afficher selon n :<div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:10px 0">${FACES.map(f => `<div style="width:84px;text-align:center">${die(f.on, false)}<div><b>n = ${f.n}</b></div></div>`).join("")}</div>Exemple : n = 3 = (011)₂ donne X₀ = 1, X₁ = 1, X₂ = 0, et d3, d4, d5 sont allumées.<br><b>But :</b> trouver les formules d1 … d7 (Vrai = allumée) en X₀, X₁, X₂. Question 1 : d1 (table et formule). Question 2 : les autres diodes.`;
+    return { context: ctx, steps };
+  } },
   redaction: { g: "✎", title: "Exercices à rédiger", desc: "Écris ta réponse sur papier, puis compare avec la correction", make() {
     return { context: `<b>Sur ta feuille.</b> Rédige la réponse comme en CC, puis affiche la correction et note-toi honnêtement.`, steps: shuffle(REDAC).slice(0, 3).map((r, i) => ({ kind: "reveal", prompt: r.t, solution: r.s, label: `Rédaction ${i + 1} sur 3` })) };
   } },
@@ -740,7 +776,7 @@ function render() {
   const ctx = q.context != null ? q.context : run.w.context;
   const btn = q.kind === "reveal" ? "Voir la correction" : "Valider";
   app.innerHTML = `<div class="stack">${hud()}<section class="card">${ctx ? `<div class="ctx">${ctx}</div>` : ""}<div class="label">${q.label || TYPES[q.type] || ""}</div>
-    <div style="margin-top:6px">${q.prompt}</div>${body}
+    <div style="margin-top:6px">${q.prompt}</div>${q.hints ? q.hints.map((h, i) => `<details class="hint"><summary>Aide ${i + 1}</summary><div>${h}</div></details>`).join("") : ""}${body}
     <div class="row" style="margin-top:16px"><button class="primary" id="go" onclick="validate()">${btn}</button></div>
     <div id="fb"></div></section></div>`;
   if (q.kind === "input") $("#ans").focus();
@@ -800,7 +836,7 @@ function endRun(timeout = false) {
   const note = w.id === "exam" ? `<p class="big">Note : <b>${run.score}/20</b> · ${run.score >= 16 ? "Très bien" : run.score >= 14 ? "Bien" : run.score >= 12 ? "Assez bien" : run.score >= 10 ? "Passable, continue" : "À retravailler"}</p>` : "";
   const wi = WORLDS.indexOf(w);
   const again = w.ex ? `startExo('${w.ex}')` : `startWorld(${wi})`;
-  const ficheIdx = w.ex ? { numeration: 1, formule: 3, simplif: 4, normal: 5, predicats: 6, redaction: 4 }[w.ex] : Math.min(FICHES.length - 1, Math.max(0, wi));
+  const ficheIdx = w.ex ? { numeration: 1, formule: 3, simplif: 4, normal: 5, predicats: 6, redaction: 4, de: 3 }[w.ex] : Math.min(FICHES.length - 1, Math.max(0, wi));
   app.innerHTML = `<div class="stack">${header()}<section class="card stack" style="align-items:center;text-align:center">
     <div class="label">${w.name}${timeout ? " · temps écoulé" : ""}</div>
     <div class="result-num">${run.score}<span class="muted" style="font-size:28px"> / ${n}</span></div>
@@ -925,5 +961,3 @@ window.__selftest = function (n = 200) {
 };
 home();
 </script>
-</body>
-</html>
