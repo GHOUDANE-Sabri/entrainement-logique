@@ -289,7 +289,7 @@ function powSum(str, b) { const ds = str.split(""), n = ds.length; return ds.map
 function fracToBin(x) { let s = "", k = 0; while (x > 0 && k < 12) { x *= 2; if (x >= 1) { s += "1"; x -= 1; } else s += "0"; k++; } return s; }
 const fr = x => String(x).replace(".", ",");
 function inputQ(prompt, ans, explain, numeric = false, label) {
-  return { kind: "input", prompt, label, answerText: ans, explain: `Réponse : <span class="f">${esc(ans)}</span><br>${explain}`,
+  return { kind: "input", prompt, label, numeric, answerText: ans, explain: `Réponse : <span class="f">${esc(ans)}</span><br>${explain}`,
     check: u => numeric ? (/^\s*-?\d+([.,]\d+)?\s*$/.test(u) && Math.abs(parseFloat(String(u).replace(",", ".")) - parseFloat(String(ans).replace(",", "."))) < 1e-9) : normBase(u) === normBase(ans) };
 }
 function numQ(t, n) {
@@ -717,7 +717,7 @@ function tile(glyph, title, sub, meta, onclick) {
 function home() {
   clearInterval(timerId); run = null;
   const worlds = WORLDS.map((w, i) => { const b = S.best[w.id]; return tile(w.g, (i && i < 7 ? `Monde ${i} · ` : "") + w.name, w.sub, `<span class="stars">${starStr(b != null ? starsFor(b, w.n) : 0)}</span>${b != null ? `record ${b}/${w.n}` : "pas encore joué"}`, `startWorld(${i})`); }).join("");
-  const exos = Object.entries(EXOS).map(([k, e]) => { const b = S.best["ex-" + k]; return tile(e.g, e.title, e.desc, b != null ? `meilleur : ${Math.round(b * 100)} %` : "pas encore fait", `startExo('${k}')`); }).join("");
+  const exos = Object.entries(EXOS).map(([k, e]) => { const b = S.best["ex-" + k]; return tile(e.g, e.title, e.desc, S.prog && S.prog["ex-" + k] ? `en cours : question ${S.prog["ex-" + k].idx + 1} / ${S.prog["ex-" + k].steps.length}` : (b != null ? `meilleur : ${Math.round(b * 100)} %` : "pas encore fait"), `startExo('${k}')`); }).join("");
   app.innerHTML = `<div class="stack">${header()}
   <nav class="nav"><button onclick="fiches()">Fiches de cours</button><button onclick="training()">Entraînement libre</button><button onclick="stats()">Statistiques</button><button onclick="toggleTheme()">Thème clair / sombre</button></nav>
   <div class="section-head"><h2>Chapitres</h2><span class="muted">10 questions par partie, corrigées tout de suite</span></div>
@@ -739,9 +739,23 @@ function newRun(w) {
   nextQ();
 }
 function startWorld(i, freeType) { newRun(freeType ? { id: "free", g: "∞", name: TYPES[freeType], types: [freeType], n: Infinity } : WORLDS[i]); }
-function startExo(k) {
+const numOk = (u, a) => /^s*-?d+([.,]d+)?s*$/.test(u) && Math.abs(parseFloat(String(u).replace(",", ".")) - parseFloat(String(a).replace(",", "."))) < 1e-9;
+function saveProg() {
+  if (!run || !run.w.ex) return;
+  try { S.prog = S.prog || {}; S.prog[run.w.id] = { idx: run.idx, score: run.score, results: run.results, steps: JSON.parse(JSON.stringify(run.w.fixed)), context: run.w.context }; save(); } catch (e) {}
+}
+function startExo(k, fresh) {
+  const id = "ex-" + k, p = !fresh && S.prog && S.prog[id];
+  if (p && p.steps && p.idx < p.steps.length) {
+    const steps = p.steps.map(s => s.kind === "input" && s.answerText != null ? Object.assign(s, { check: u => s.numeric ? numOk(u, s.answerText) : normBase(u) === normBase(s.answerText) }) : s);
+    const note = `<div class="row" style="margin-top:10px"><span class="muted">Reprise : question ${p.idx + 1} sur ${steps.length}.</span><button onclick="startExo('${k}', true)">Recommencer</button></div>`;
+    newRun({ id, ex: k, g: EXOS[k].g, name: EXOS[k].title, fixed: steps, context: (p.context || "") + note, n: steps.length });
+    run.idx = p.idx; run.score = p.score; run.results = p.results || [];
+    nextQ(); return;
+  }
+  if (S.prog && S.prog[id]) { delete S.prog[id]; save(); }
   let ex; for (let t = 0; t < 5 && !ex; t++) { try { ex = EXOS[k].make(); } catch (e) { console.error(e); } }
-  newRun({ id: "ex-" + k, ex: k, g: EXOS[k].g, name: EXOS[k].title, fixed: ex.steps, context: ex.context, n: ex.steps.length });
+  newRun({ id, ex: k, g: EXOS[k].g, name: EXOS[k].title, fixed: ex.steps, context: ex.context, n: ex.steps.length });
 }
 function tick() {
   if (!run || !run.deadline) return;
@@ -825,12 +839,12 @@ function finish(ok, explain) {
   const go = $("#go"); go.textContent = run.idx + 1 >= run.w.n ? "Voir le résultat" : "Suivant →"; go.focus();
   const h = $("#hudwrap"); if (h) { h.outerHTML = hud(); tick(); }
 }
-function nextAfter() { run.idx++; nextQ(); window.scrollTo(0, 0); }
+function nextAfter() { run.idx++; saveProg(); nextQ(); window.scrollTo(0, 0); }
 function endRun(timeout = false) {
   clearInterval(timerId); const w = run.w;
   if (w.n === Infinity) return home();
   const n = w.n, k = starsFor(run.score, n), bonus = k * 15; S.xp += bonus;
-  if (w.ex) { const p = run.score / n; if (S.best[w.id] == null || p > S.best[w.id]) S.best[w.id] = p; }
+  if (w.ex) { if (S.prog) delete S.prog[w.id]; const p = run.score / n; if (S.best[w.id] == null || p > S.best[w.id]) S.best[w.id] = p; }
   else if (S.best[w.id] == null || run.score > S.best[w.id]) S.best[w.id] = run.score;
   save();
   const note = w.id === "exam" ? `<p class="big">Note : <b>${run.score}/20</b> · ${run.score >= 16 ? "Très bien" : run.score >= 14 ? "Bien" : run.score >= 12 ? "Assez bien" : run.score >= 10 ? "Passable, continue" : "À retravailler"}</p>` : "";
